@@ -1,9 +1,9 @@
 # projetcompi
-Projet de compilation réalisé dans le cadre de l'UE "Compilation
+Projet de compilation réalisé dans le cadre de l'UE "Compilation".
 
 Objectif
 -
-Manipuler la théorie ds langes et la compilation via Bison et Flex
+Manipuler la théorie des langages et la compilation via Bison et Flex.
 
 Tâches
 -
@@ -13,4 +13,4 @@ Tâches
 
 Acteurs du projet
 - 
-Fontenay Clément, Gaillard Valentin, Cherifi Ali
+Fontenay Clément, Gaillard Valentin, Cherifi Ali.
