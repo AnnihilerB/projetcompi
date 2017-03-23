@@ -105,9 +105,10 @@ void ecrire_bilfon(BILFON bfn)
 }
 void ecrire_prog(BILENV argb,BILFON argbf,NOE argno)
 {
-    
-}
-int main(int argc, char** argv)
-{   
-    //test
+    printf("argb: \n");
+    ecrire_bilenv(argb);
+    printf("argbf: \n");
+    ecrire_bilfon(argbf);
+    printf("argno: \n");
+    prefix(argno);
 }
