@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "util.h"
 #include "environ.h"
 
@@ -20,12 +21,89 @@ void inbilenv(BILENV *prho,char *var){}
 BILENV bilenv_vide(){}
 BILENV creer_bilenv(ENV var){}
 BILENV copier_bilenv(BILENV b){}
-BILENV concat(BILENV b1, BILENV b2){}
-void ecrire_bilenv(BILENV b){}
-void affectb(BILENV rho_gb, BILENV rho_lc, char *lhs, int rhs){}
-LFON copier_fon(LFON lfn){}
-void ecrire_fon(LFON bfn){}
-LFON rechfon(char *chaine, LFON listident){}
+BILENV concat(BILENV b1, BILENV b2){
+    BILENV br;
+    if (b1.fin != NULL){
+        if (b2.fin != NULL){
+            b1.fn = b2.debut;
+            br.debut = b1.debut;
+            br.fin = b2.fin;
+            return br;
+        }
+        else
+            return b1;
+    }
+    else
+        return b2;
+}
+void ecrire_bilenv(BILENV b){
+    ENV e = b.debut;
+    printf("Début BILENV\n");
+    while (e != NULL){
+        ecrire_env(e);
+        e = e->SUIV;
+    }
+    printf("fin BILENV\n");
+}
+void affectb(BILENV rho_gb, BILENV rho_lc, char *lhs, int rhs) {
+    //Recherche locale
+    ENV local = rech(lhs, rho_lc.debut);
+    if (local != NULL) {
+        affect(local, lhs, rhs);
+        break;
+    }
+    else{
+        ENV global = rech(lhs, rho_gb.debut);
+        //TODO : Gérer le cas ou la variable n'existe pas du tout
+        affect(global, lhs, rhs);
+    }
+}
+LFON copier_fon(LFON lfn){
+    LFON *fcopie = malloc(sizeof(struct cellfon));
+    fcopie->ID = strdup(lfn->ID);
+    fcopie->PARAM = copier_bilenv(lfn->PARAM);
+    fcopie->VARLOC = copier_bilenv(lfn->VARLOC);
+    //TODO : fonction copier_noe
+    //fcopie->CORPS = copier_noe(lfn->CORPS);
+    if (lfn->SUIV != NULL)
+        fcopie->SUIV = copier_fon(lfn->SUIV);
+    else
+        (lfn->SUIV = NULL);
+    return fcopie;
+}
+void ecrire_fon(LFON bfn){
+    printf("Début de la fonction\n");
+    printf("ID fonction : %s\n", bfn->ID);
+    printf("Début Param : \n");
+    ecrire_bilenv(bfn->PARAM);
+    printf("Fin Param\n");
+    printf("Début variables locales : \n");
+    ecrire_bilenv(bfn->VARLOC);
+    printf("Fin variables locales\n");
+    printf("Début corps : \n");
+    //TODO : ecrire_noe
+    //ecrire_noe(bfn->CORPS);
+    printf("Fin corps\n");
+    if (bfn->SUIV != NULL){
+        printf("Passage fonction suivante\n\n");
+        ecrire_fon(bfn->SUIV);
+    }
+    else{
+        printf("Pas de suivant\n");
+    }
+    printf("Fin de la fonction.\n");
+
+
+
+}
+LFON rechfon(char *chaine, LFON listident){
+    if (strcmp(listident->ID, chaine) == 0)
+        return listident;
+    else if (listident->SUIV != NULL)
+        return rech(chaine, listident->SUIV);
+    else
+        return NULL;
+}
 BILFON bilfon_vide()
 {
     BILFON b;
