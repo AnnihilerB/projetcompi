@@ -3,29 +3,130 @@
 #include <string.h>
 #include "util.h"
 #include "environ.h"
+#include <stdbool.h>
+
 
 NOE Nalloc()
 {
-    
+    struct noeud *noe = malloc(sizeof(struct noeud));
+    noe->codop = 0;
+    noe->ETIQ = NULL;
+    noe->FG = malloc(sizeof(struct noeud));
+    noe->FD = malloc(sizeof(struct noeud));
+    return noe;
 }
-LFON  Lfonalloc()
+
+LFON Lfonalloc()
 {
-    
+    struct cellfon *lfon = malloc(sizeof(struct cellfon));
+    lfon->ID = NULL;
+    lfon->PARAM = bilenv_vide();
+    lfon->VARLOC =  bilenv_vide();
+    lfon->CORPS =  malloc(sizeof(struct noeud));
+    lfon->SUIV = NULL;
+    return lfon;
 }
-void prefix(NOE n){}
-ENV creer_env(char *etiq, int val){}
-ENV copier_env(ENV  env){}
-char *nomop(int codop){}
-ENV rech2(char *chaine, ENV rho_gb, ENV rho_lc){}
-void inbilenv(BILENV *prho,char *var){}
-BILENV bilenv_vide(){}
-BILENV creer_bilenv(ENV var){}
-BILENV copier_bilenv(BILENV b){}
+
+void prefix(NOE n){
+
+	if(n!=NULL){
+		printf("%d, %s\n", n->codop, n->ETIQ);
+		prefix(n->FG);
+		prefix(n->FD);
+	}
+}
+
+ENV creer_env(char *etiq, int val){
+
+	ENV e = Envalloc();
+	e->ID = etiq;
+	e->VAL = val;
+	return e;
+}
+
+ENV copier_env(ENV  env){
+
+	ENV e = creer_env(env->ID, env->VAL);
+	return e;
+}
+
+char *nomop(int codop){
+
+	switch(codop)
+    {
+    case(T_boo): return("T_boo");
+    case(T_int): return("T_int");
+    case(Def): return("Def");
+    case(Dep): return("Dep");
+    case(true): return("true");
+    case(false): return("false");
+    case(Se): return("Se");
+    case(If): return("If");
+    case(Th): return("Th");
+    case(El): return("El");
+    case(Var): return("Var");
+    case(Wh): return("Wh");
+    case(Do):return("Do");
+    case(Af): return("Af");
+    case(Sk): return("Sk");
+    case(Pl): return("Pl");
+    case(Mo): return("Mo");
+    case(Mu): return("Mu");
+    case(And): return("And");
+    case(Or): return("Or");
+    case(Not): return("Not");
+    case(Lt): return("Lt");
+    case(Eq): return("Eq");
+    };
+
+}
+
+ENV rech2(char *chaine, ENV rho_gb, ENV rho_lc){
+	if(rho_lc==NULL){
+		if(strcmp(rho_lc->ID,chaine)==0)
+			return rho_lc;
+	}
+	if(rho_gb==NULL){
+		if(strcmp(rho_gb->ID,chaine)==0)
+			return rho_gb;
+	}
+}
+
+void inbilenv(BILENV *prho,char *var){
+	ENV env = creer_env(var, 0);
+	if(prho->fin == NULL)
+		prho->fin = env;
+}
+
+BILENV bilenv_vide(){
+	BILENV bilenv;
+	bilenv.debut = NULL;
+	bilenv.fin = NULL;
+    return bilenv;    
+}
+
+BILENV creer_bilenv(ENV var){
+
+	BILENV bilenv = bilenv_vide();
+	bilenv.debut = var;
+	bilenv.fin = NULL;
+	return bilenv;
+
+}
+
+BILENV copier_bilenv(BILENV b){
+
+	BILENV bilenv = bilenv_vide();
+	bilenv = creer_bilenv(b.debut);
+	return bilenv;
+
+}
+
 BILENV concat(BILENV b1, BILENV b2){
     BILENV br;
     if (b1.fin != NULL){
         if (b2.fin != NULL){
-            b1.fn = b2.debut;
+            b1.fin = b2.debut;
             br.debut = b1.debut;
             br.fin = b2.fin;
             return br;
@@ -50,7 +151,6 @@ void affectb(BILENV rho_gb, BILENV rho_lc, char *lhs, int rhs) {
     ENV local = rech(lhs, rho_lc.debut);
     if (local != NULL) {
         affect(local, lhs, rhs);
-        break;
     }
     else{
         ENV global = rech(lhs, rho_gb.debut);
@@ -59,7 +159,7 @@ void affectb(BILENV rho_gb, BILENV rho_lc, char *lhs, int rhs) {
     }
 }
 LFON copier_fon(LFON lfn){
-    LFON *fcopie = malloc(sizeof(struct cellfon));
+    struct cellfon *fcopie = malloc(sizeof(struct cellfon));
     fcopie->ID = strdup(lfn->ID);
     fcopie->PARAM = copier_bilenv(lfn->PARAM);
     fcopie->VARLOC = copier_bilenv(lfn->VARLOC);
@@ -199,7 +299,7 @@ void ecrire_prog(BILENV argb,BILFON argbf,NOE argno)
     ecrire_bilfon(argbf);
     printf("argno: \n");
     prefix(argno);
-}
+}/*
 int main(int argc, char** argv)
 {   
     BILFON b = bilfon_vide();
@@ -231,3 +331,4 @@ int main(int argc, char** argv)
     b = concatfn(b,b2);
     ecrire_bilfon(b);
 }
+*/

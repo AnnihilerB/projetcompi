@@ -71,6 +71,29 @@ extern void ecrire_bilfon(BILFON bfn);   /* affiche la biliste de fonctions  */
 void ecrire_prog(BILENV argb,BILFON argbf,NOE argno);/* affiche le programme */
 /* --------------------CONSTANTES -------------------------------------------*/
 #define MAXIDENT 16          /* long max d'un identificateur de variable     */
+
+#define Def 200
+#define Dep 201
+#define Af 260
+#define Sk 262
+#define T_boo 204
+#define T_int 205
+#define Se 206
+#define If 207
+#define Th 208
+#define El 209
+#define Var 210
+#define Wh 211
+#define Do 212
+#define Pl 257
+#define Mo 258
+#define Mu 259
+#define And 216
+#define Or 217
+#define Not 218
+#define Lt 219
+#define Eq 220
+
 /*---------------------VARIABLES globales -----------------------------------*/
 /* definies au  debut de y.tab.c , non-declarees dans y.tab.h                */
 //extern NOE syntree;          /* arbre syntaxique                  (y.tab.c)*/
