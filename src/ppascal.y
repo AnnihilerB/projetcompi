@@ -10,11 +10,16 @@
         int val;
         char* nom;
 }*/
-/*%start C*/
-%token T_boo T_int Def Dep Af true false Se If Th El Var Wh Do Pl Mo Mu And Or Not Lt Eq Sk Nb NewFon NewPro NewArray TArray
+%start MP
+%token T_boo T_int Def Dep Af true false Se If Th El Var Wh Do Pl Mo Mu And Or Not Lt Eq Sk NFon NPro NewAr T_ar I V
+
+%left Se
+%left Pl Mo Mu And Or Not Lt Eq
+%left Sk ????
+%right Wh If V ????
 
 %%
-MP: L_vart LD C {}
+MP: L_vart LD C  {}
     ;
 E: E Pl E {}
     | E Mo E {}
@@ -44,6 +49,7 @@ C: C Se C {}
     | If E Th C El C {}
     | Wh E Do C {}
     | V '(' L_args ')' {}
+    | %empty
     ;
 L_args: %empty {}
     | L_argsnn {}
@@ -78,19 +84,6 @@ D: D_entp L_vart C {}
     ;
 LD: %empty {}
     | LD D {}
-    ;
-
-V: Var {}
-    ;
-I: Nb {}
-    ;
-NewAr: NewArray {}
-    ;
-NPro: NewPro {}
-    ;
-NFon: NewFon {}
-    ;
-T_ar: TArray {}
     ;
 
 

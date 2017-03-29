@@ -5,26 +5,40 @@
     #include <string.h>
     #include "ppascal.tab.h"
 %}
-
-
 %%
-[0-9]|[1-9][0-9]+ {/*yylval.val = atoi(yytext); return Nombre;*/}
+[0-9]|[1-9][0-9]+ {return I;}
 := {return Af;}
 skip {return Sk;}
-\; {return Se;}
+; {return Se;}
 if {return If;}
 then {return Th;}
-else {return El;} 
+else {return El;}
 while {return Wh;}
 do  {return Do;}
 \+ {return Pl;}
 - {return Mo;}
 \* {return Mu;}
-[A-Za-z]+|[A-Za-z]+[0-9]+ { /*
-    yylval.nom = strdup(yytext);
-    return Variable;
-*/}
+
+
 \) {return ')';}
-\( {return '(';} 
+\( {return '(';}
 \n {;}
+
+var {printf("var\n");return Var;}
+
+
+
+: {return yytext[0];}
+
+integer {printf("int\n");return T_int;}
+boolean {printf("bool\n");return T_boo;}
+array" "of {return T_ar;}
+, {printf("virgule\n");return yytext[0];}
+
+
+[A-Za-z]+|[A-Za-z]+[0-9]+ {
+  printf("V\n");
+    return V;
+}
+
 %%
