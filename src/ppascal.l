@@ -4,6 +4,8 @@
     #include <stdlib.h>
     #include <string.h>
     #include "analyseur.h"
+    #include "util.h"
+    #include "ppascal.tab.h"
     enum {declareVariable, declareFonction, declareProcedure};
     int declare = declareVariable;
 %}

@@ -2,8 +2,8 @@
 #ifndef UTIL_H
 #define UTIL_H 
 
-#include "ppascal.tab.h"
 #include "environ.h"
+
 /* ----------------------------types--------------------------------------------*/
 
 
