@@ -2,6 +2,7 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include "ppascal.tab.h"
+    #include "analyseur.h"
     int yyerror(char* s);
     int yylex();
 %}
@@ -100,6 +101,7 @@ int yywrap()
 }
 int main(int argn, char** argv)
 {
+
     yyparse();
     return 0;
 }
