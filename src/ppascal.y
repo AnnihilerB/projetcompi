@@ -1,28 +1,35 @@
 %{
     #include <stdio.h>
     #include <stdlib.h>
-    #include "ppascal.tab.h"
     #include "analyseur.h"
+    #include "ppascal.tab.h"
     int yyerror(char* s);
     int yylex();
-    
-    EnvGlobal* envGlobal;
 %}
 
 %union{
+        struct envg* envG;
         int val;
         char* nom;
 }
 %start MP
 %token T_boo T_int Def Dep Af true false Se If Th El Var Wh Do Pl Mo Mu And Or Not Lt Eq Sk NFon NPro NewAr T_ar I V
 
+%type <envG->listeDesFonctionsOuProcedure> LD
+%type <envG> MP
+%type <envG->variablesGlobales> L_vart
+%type <envG->corpsGlobale> C
 %left Se
 %left Pl Mo Mu And Or Not Lt Eq
 %left Sk /*????*/
 %right Wh If V /*????*/
 
 %%
-MP: L_vart LD C  {}
+MP: L_vart LD C  {$$=creer_environnementGlobal();
+                    $$->variablesGlobales = $1;
+                    $$->listeDesFonctionsOuProcedure = $2;
+                    $$->corpsGlobale = $3;
+                }
     ;
 E: E Pl E {}
     | E Mo E {}
@@ -52,7 +59,7 @@ C: C Se C {}
     | If E Th C El C {}
     | Wh E Do C {}
     | V '(' L_args ')' {}
-    | %empty
+    | %empty {}
     ;
 L_args: %empty {}
     | L_argsnn {}
@@ -86,7 +93,7 @@ D: D_entp L_vart C {}
     | D_entf L_vart C {}
     ;
 LD: %empty {}
-    | LD D {}
+    | LD D {$$ = bilfon_vide();}
     ;
 
 
@@ -103,7 +110,6 @@ int yywrap()
 }
 int main(int argn, char** argv)
 {
-    envGlobal = creer_environnementGlobal();
     yyparse();
     return 0;
 }

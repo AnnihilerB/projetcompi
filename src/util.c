@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "ppascal.tab.h"
 #include "util.h"
 #include "environ.h"
 #include <stdbool.h>

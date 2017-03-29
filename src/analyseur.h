@@ -1,11 +1,12 @@
 #ifndef ANALYSEUR_H
 #define ANALYSEUR_H
-#include "environ.h"
 #include "util.h"
-typedef struct environnementGlobal{
+struct envg{
     BILENV variablesGlobales;
-    BILFON listeDesFonctions;
-} EnvGlobal;
+    NOE corpsGlobale;
+    BILFON listeDesFonctionsOuProcedure;
+};
+typedef struct envg EnvGlobal;
 
 
 EnvGlobal* creer_environnementGlobal(); 

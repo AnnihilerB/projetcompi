@@ -3,10 +3,11 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>
-    #include "ppascal.tab.h"
+    #include "analyseur.h"
     enum {declareVariable, declareFonction, declareProcedure};
     int declare = declareVariable;
 %}
+
 %%
 [0-9]|[1-9][0-9]+ {return I;}
 := {return Af;}
