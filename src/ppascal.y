@@ -5,19 +5,21 @@
     #include "analyseur.h"
     int yyerror(char* s);
     int yylex();
+    
+    EnvGlobal* envGlobal;
 %}
-/*
+
 %union{
         int val;
         char* nom;
-}*/
+}
 %start MP
 %token T_boo T_int Def Dep Af true false Se If Th El Var Wh Do Pl Mo Mu And Or Not Lt Eq Sk NFon NPro NewAr T_ar I V
 
 %left Se
 %left Pl Mo Mu And Or Not Lt Eq
-%left Sk ????
-%right Wh If V ????
+%left Sk /*????*/
+%right Wh If V /*????*/
 
 %%
 MP: L_vart LD C  {}
@@ -73,8 +75,8 @@ TP: T_boo {}
 L_vart: %empty {}
     | L_vartnn {}
     ;
-L_vartnn: Var Argt {}
-    | L_vartnn ',' Var Argt {}
+L_vartnn: Var Argt {;}
+    | L_vartnn ',' Var Argt {;}
     ;
 D_entp: Dep NPro '(' L_argt ')' {}
     ;
@@ -101,7 +103,7 @@ int yywrap()
 }
 int main(int argn, char** argv)
 {
-
+    envGlobal = creer_environnementGlobal();
     yyparse();
     return 0;
 }
