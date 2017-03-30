@@ -29,9 +29,9 @@
 
 %%
 MP: L_vart LD C  {  printf("T_ar = %d T_bool = %d T_int = %d\n", T_ar, T_boo, T_int);
-                    $$=creer_environnementGlobal();
+                    $$=creer_environnementGlobal($1, $2, $3);
                     //$$->variablesGlobales = $1;
-                    $$->listeDesFonctionsOuProcedure = $2;
+                    //$$->listeDesFonctionsOuProcedure = $2;
                     //$$->corpsGlobale = $3;
                 }
     ;
@@ -55,16 +55,18 @@ E: E Pl E {}
 Et: V '[' E ']' {}
     | Et '[' E ']' {}
     ;
-C: C Se C {}
-    | Et Af E {}
-    | V Af E {}
+C: C Se Ca {}
     | Sk {}
     | '{' C '}' {}
-    | If E Th C El C {}
-    | Wh E Do C {}
     | V '(' L_args ')' {}
-    | %empty {}
+    | Ca {}
     ;
+
+Ca: Wh E Do Ca {}
+  | If E Th C El Ca {}
+  | Et Af E {}
+  | V Af E {}
+  ;
 L_args: %empty {}
     | L_argsnn {}
     ;
