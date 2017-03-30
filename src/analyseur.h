@@ -10,5 +10,6 @@ typedef struct envg{
 
 
 EnvGlobal creer_environnementGlobal(); 
-int compare_type(Type type, NOE varATester); //l'idée c'est que le type de varATester est en fait son filsGauche et que son filsGauche peut avoir un filsGauche ETC donc on va parcourir ça et voir si c'est égale à type (en additionnant la valeur des filsGauche)
+Type renvoie_type_avec_un_noeud(NOE n);
+int compare_type(Type type, NOE varATester); //retourne 0 si type != type de varATester sion renvoie 1
 #endif
