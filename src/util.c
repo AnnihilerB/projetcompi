@@ -263,15 +263,7 @@ BILFON creer_bilfon(LFON pfon)
 {
     BILFON b = bilfon_vide();
     b.debut = pfon;
-    LFON w = b.debut;
-    if (w != NULL)
-    {
-        while (w->SUIV != NULL)
-        {
-            w = w->SUIV;
-        }
-    }
-    b.fin = w;
+    b.fin = b.debut;
     return b;
 }
 BILFON copier_bilfon(BILFON bfn)
