@@ -1,0 +1,3 @@
+void interpreteur(NOE corps){
+    
+}
