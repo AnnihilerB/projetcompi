@@ -3,9 +3,14 @@
 #define ENVIRON_H 
 /* ----------------------------types--------------------------------------------*/
 /* environnement := liste de couples (identificateur, entier) */
+typedef struct {
+    int dim;    //si 0 alors c'est qe ce n'est pas un tableau
+    int type;    
+} Type;
 typedef struct cellenv{
   char *ID;
   int  VAL;
+  Type type;
   struct cellenv *SUIV;} *ENV;
 
 /*------------------FONCTIONS ---------------------------------------------------*/
