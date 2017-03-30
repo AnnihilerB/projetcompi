@@ -7,6 +7,10 @@ typedef struct envg{
     BILFON listeDesFonctionsOuProcedure;
 } *EnvGlobal;
 
+typedef struct {
+    int dim;    //si 0 alors c'est qe ce n'est pas un tableau
+    int type;    
+} Type;
 
 EnvGlobal creer_environnementGlobal(); 
 int renvoie_type(BILENV* variables, char* nomVar);      //renvoie -1 si pas trouvé
