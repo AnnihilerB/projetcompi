@@ -14,14 +14,28 @@ int renvoie_type(BILENV* variables, char* nomVar)
         return -1;
     return varTrouvee->VAL;
 }
-int compare_type(int type, NOE varATester)
+Type renvoie_type_avec_un_noeud(NOE n)
 {
-    int somme = varATester->codop;
-    NOE w = varATester->FG;
+    int dimension = 0;
+    NOE w = n->FG;
     while (w != NULL)
     {
-        somme += w->codop;
+        dimension ++;
         w = w->FG;
     }
-    return somme;
+    Type t;
+    t.dim = dimension;
+    if (w != NULL)
+        t.type = w->codop;
+    else
+        t.type = n->codop;
+    return t;
+}
+int compare_type(Type type, NOE varATester)
+{
+    Type t = renvoie_type_avec_un_noeud(varATester);
+    if (t.type == type.type && t.dim == type.dim)
+        return 1;
+    else
+        return 0;
 }
