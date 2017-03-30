@@ -5,6 +5,26 @@
 #include "environ.h"
 #include <stdbool.h>
 
+void ecrire_noe(NOE noe){
+  printf("Code OP : %d\n", noe->codop);
+  printf("Etiquette : %s\n", noe->ETIQ);
+  printf("Fils gauche : \n");
+  ecrire_noe(noe->FG);
+  printf("Fils droit : \n");
+  ecrire_noe(noe->FD);
+}
+
+NOE copier_noe(NOE noe){
+  NOE noeudCopie = malloc(sizeof(struct noeud));
+  noeudCopie->codop = noe->codop;
+  noeudCopie->ETIQ = strdup(noe->ETIQ);
+  if (noe->FG != NULL)
+    noeudCopie->FG = copier_noe(noe->FG);
+  if (noe->FD != NULL)
+    noeudCopie->FD = copier_noe(noe->FD);
+  return noeudCopie;
+
+}
 
 NOE Nalloc()
 {
@@ -41,6 +61,7 @@ ENV creer_env(char *etiq, int val){
 	ENV e = Envalloc();
 	e->ID = etiq;
 	e->VAL = val;
+  e->SUIV = NULL;
 	return e;
 }
 
@@ -102,7 +123,7 @@ BILENV bilenv_vide(){
 	BILENV bilenv;
 	bilenv.debut = NULL;
 	bilenv.fin = NULL;
-    return bilenv;    
+    return bilenv;
 }
 
 BILENV creer_bilenv(ENV var){
@@ -125,8 +146,8 @@ BILENV copier_bilenv(BILENV b){
 BILENV concat(BILENV b1, BILENV b2){
     BILENV br;
     if (b1.fin != NULL){
-        if (b2.fin != NULL){
-            b1.fin = b2.debut;
+        if (b2.debut != NULL){
+            b1.fin->SUIV = b2.debut;
             br.debut = b1.debut;
             br.fin = b2.fin;
             return br;
@@ -208,7 +229,7 @@ BILFON bilfon_vide()
 {
     BILFON b;
     b.debut = b.fin = NULL;
-    return b;    
+    return b;
 }
 BILFON creer_bilfon(LFON pfon)
 {
@@ -233,7 +254,7 @@ BILFON copier_bilfon(BILFON bfn)
         b = creer_bilfon(copier_fon(b.debut));
     }
     return b;
-    
+
 }
 BILFON concatfn(BILFON bfn1, BILFON bfn2)
 {
@@ -277,7 +298,7 @@ void ecrire_bilfon(BILFON bfn)
     if (w == NULL)
         printf("vide");
     else
-    {        
+    {
         while(w != NULL)
         {
             printf("ID: %s ( ", w->ID);
@@ -301,7 +322,7 @@ void ecrire_prog(BILENV argb,BILFON argbf,NOE argno)
     prefix(argno);
 }/*
 int main(int argc, char** argv)
-{   
+{
     BILFON b = bilfon_vide();
     printf("bilfon_vide: doit etre vide: ");
     ecrire_bilfon(b);
@@ -312,7 +333,7 @@ int main(int argc, char** argv)
     LFON lfon3 = malloc(sizeof(struct cellfon));
     lfon3->ID = "test 3";
     lfon->SUIV = lfon2->SUIV = lfon3->SUIV = NULL;
-    
+
     printf("creer_bilfon: doit avoir un élement (test 1): \n");
     b = creer_bilfon(lfon);
     ecrire_bilfon(b);
@@ -320,12 +341,12 @@ int main(int argc, char** argv)
     printf("creer_bilfon: doit avoir 2 élement (test 1 -> test 2): \n");
     b = creer_bilfon(lfon);
     ecrire_bilfon(b);
-    
+
     printf("copier_bilfon: (en attente de copier_fon ");
     BILFON b2 = copier_bilfon(b);
     ecrire_bilfon(b2);
     printf("debut: %p == %p  et fin: %p == %p\n", b.debut, b2.debut, b.fin, b2.fin);
-    
+
     b2 = creer_bilfon(lfon3);
     printf("concatfn:  doit avoir 3 élements (test1->test2->test3): \n");
     b = concatfn(b,b2);
