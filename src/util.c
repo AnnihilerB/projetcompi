@@ -61,13 +61,19 @@ ENV creer_env(char *etiq, int val){
 	ENV e = Envalloc();
 	e->ID = etiq;
 	e->VAL = val;
-  e->SUIV = NULL;
+    e->SUIV = NULL;
 	return e;
 }
 
 ENV copier_env(ENV  env){
 
-	ENV e = creer_env(env->ID, env->VAL);
+    ENV e = NULL;
+
+    if(env !=NULL){
+        e = creer_env(env->ID, env->VAL);
+        e->SUIV= copier_env(env->SUIV);
+    }
+	
 	return e;
 }
 
@@ -103,20 +109,39 @@ char *nomop(int codop){
 }
 
 ENV rech2(char *chaine, ENV rho_gb, ENV rho_lc){
-	if(rho_lc==NULL){
-		if(strcmp(rho_lc->ID,chaine)==0)
+	if(rho_lc!=NULL){
+		if(strcmp(rho_lc->ID,chaine)==0){
+            printf("trouve %s en position %p \n",chaine,rho_lc);
 			return rho_lc;
+        }
+        else
+            return rech2(chaine, rho_gb, rho_lc->SUIV);
 	}
-	if(rho_gb==NULL){
-		if(strcmp(rho_gb->ID,chaine)==0)
+
+	else if(rho_gb!=NULL){
+		if(strcmp(rho_gb->ID,chaine)==0){
+            printf("trouve %s en position %p \n",chaine,rho_gb);
 			return rho_gb;
+        }
+        else
+            return rech2(chaine, rho_gb->SUIV, NULL);
 	}
+
+    else
+        return NULL;
 }
 
 void inbilenv(BILENV *prho,char *var){
-	ENV env = creer_env(var, 0);
-	if(prho->fin == NULL)
-		prho->fin = env;
+
+	ENV env = prho->debut;
+    ENV pos = rech(var, env);
+
+	if(pos == NULL){
+        ENV new = creer_env(var, 0);
+        new->SUIV=env;
+		prho->debut = new;
+    }
+
 }
 
 BILENV bilenv_vide(){
@@ -137,9 +162,12 @@ BILENV creer_bilenv(ENV var){
 
 BILENV copier_bilenv(BILENV b){
 
-	BILENV bilenv = bilenv_vide();
-	bilenv = creer_bilenv(b.debut);
-	return bilenv;
+	ENV copenv = copier_env(b.debut);
+    b.debut = copenv;
+    while(copenv && copenv->SUIV)
+        copenv=copenv->SUIV;
+    b.fin=copenv;
+	return b;
 
 }
 
