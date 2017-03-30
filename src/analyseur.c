@@ -9,7 +9,7 @@ EnvGlobal creer_environnementGlobal()
 }
 int renvoie_type(BILENV* variables, char* nomVar)
 {
-    ENV* varTrouvee = rech2(nomVar, variables->debut, NULL);
+    ENV varTrouvee = rech2(nomVar, variables->debut, NULL);
     if (varTrouvee == NULL)
         return -1;
     return varTrouvee->VAL;
