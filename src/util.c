@@ -180,8 +180,8 @@ void affectb(BILENV rho_gb, BILENV rho_lc, char *lhs, int rhs) {
     }
 }
 LFON copier_fon(LFON lfn){
-    struct cellfon *fcopie = malloc(sizeof(struct cellfon));
-    fcopie->ID = strdup(lfn->ID);
+    LFON fcopie = Lfonalloc();
+    fcopie->ID = lfn->ID;
     fcopie->PARAM = copier_bilenv(lfn->PARAM);
     fcopie->VARLOC = copier_bilenv(lfn->VARLOC);
     //TODO : fonction copier_noe
