@@ -14,6 +14,8 @@
 BILENV b1;
 BILENV b2;
 LFON lfon;
+LFON lfonSuiv;
+NOE corps;
 bool success = true;
 
 void erreur(char *nomFonction, char *message){
@@ -69,6 +71,36 @@ bool testAffectb(){
   return true;
 }
 
+bool testCopierFon(){
+  int adresseLfon = lfon;
+  int adresseLfonSuiv = lfonSuiv;
+  LFON fonCopie = copier_fon(lfon);
+
+  if (fonCopie == adresseLfon){
+    erreur("copierFon", "Adresse de la copie identique à originale");
+    return false;
+  }
+  if (fonCopie->SUIV == adresseLfonSuiv){
+    erreur("copierFon", "Adresse de la copie du suivant identique à l'originale");
+    return false;
+  }
+  if (fonCopie->CORPS == lfon->CORPS){
+    erreur("copierFon", "Adresse de la copie du corps identique à l'originale");
+    return false;
+  }
+  if (&fonCopie->PARAM == &lfon->PARAM){
+    erreur("copierFon", "Adresse de la copie des params identique à l'originale");
+    return false;
+  }
+  if (&fonCopie->VARLOC == &lfon->VARLOC){
+    erreur("copierFon", "Adresse de la copie de varloc identique à l'originale");
+    return false;
+  }
+
+  ecrire_fon(fonCopie);
+  return true;
+}
+
 int main(int argc, char const *argv[]) {
   ENV e1 = creer_env("VAR1", 1); //b1.debut
   ENV e2 = creer_env("VAR2", 2); //b1.fin
@@ -85,8 +117,22 @@ int main(int argc, char const *argv[]) {
   b2.debut = e3;
   b2.fin = e4;
 
-  success = success && testConcatBilenv();
+  //Création des bilistes de fonctions
+  lfon = Lfonalloc();
+  lfonSuiv = Lfonalloc();
+  corps = Nalloc();
+
+  lfon->CORPS = corps;
+  lfon->PARAM = b1;
+  lfon->VARLOC = b2;
+  lfon->SUIV = lfonSuiv;
+
+
+
+  success = success && testCopierFon();
   success = success && testAffectb();
+  success = success && testConcatBilenv();
+
   if (success){
     printf("Test passed ! \n");
   }
