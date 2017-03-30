@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "environ.h"
+#include "analyseur.h"
+#include "util.h"
+#include "ppascal.tab.h"
 /*---------------------allocation memoire----------------------------*/
 char *Idalloc()
 {

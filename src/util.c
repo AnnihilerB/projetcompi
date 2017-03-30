@@ -3,6 +3,8 @@
 #include <string.h>
 #include "util.h"
 #include "environ.h"
+#include "analyseur.h"
+#include "ppascal.tab.h"
 #include <stdbool.h>
 
 void ecrire_noe(NOE noe){
@@ -30,9 +32,7 @@ NOE Nalloc()
 {
     struct noeud *noe = malloc(sizeof(struct noeud));
     noe->codop = 0;
-    noe->ETIQ = NULL;
-    noe->FG = malloc(sizeof(struct noeud));
-    noe->FD = malloc(sizeof(struct noeud));
+    noe->ETIQ = noe->FG = noe->FD = NULL;
     return noe;
 }
 
@@ -42,7 +42,7 @@ LFON Lfonalloc()
     lfon->ID = NULL;
     lfon->PARAM = bilenv_vide();
     lfon->VARLOC =  bilenv_vide();
-    lfon->CORPS =  malloc(sizeof(struct noeud));
+    lfon->CORPS =  NULL;
     lfon->SUIV = NULL;
     return lfon;
 }

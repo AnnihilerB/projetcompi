@@ -1,7 +1,9 @@
 /* util.h */
 #ifndef UTIL_H
 #define UTIL_H 
+
 #include "environ.h"
+
 /* ----------------------------types--------------------------------------------*/
 
 
@@ -71,7 +73,7 @@ extern void ecrire_bilfon(BILFON bfn);   /* affiche la biliste de fonctions  */
 void ecrire_prog(BILENV argb,BILFON argbf,NOE argno);/* affiche le programme */
 /* --------------------CONSTANTES -------------------------------------------*/
 #define MAXIDENT 16          /* long max d'un identificateur de variable     */
-
+/*
 #define Def 200
 #define Dep 201
 #define Af 260
@@ -92,7 +94,7 @@ void ecrire_prog(BILENV argb,BILFON argbf,NOE argno);/* affiche le programme */
 #define Or 217
 #define Not 218
 #define Lt 219
-#define Eq 220
+#define Eq 220*/
 
 /*---------------------VARIABLES globales -----------------------------------*/
 /* definies au  debut de y.tab.c , non-declarees dans y.tab.h                */
