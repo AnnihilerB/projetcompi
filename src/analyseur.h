@@ -10,6 +10,10 @@ typedef struct envg{
 
 
 EnvGlobal creer_environnementGlobal(); 
+Type renvoie_type_fonction (LFON fonctionOuProcedure);
 Type renvoie_type_avec_un_noeud(NOE n);
-int compare_type(Type type, NOE varATester); //retourne 0 si type != type de varATester sion renvoie 1
+int compare_type(Type t1, Type t2); //retourne 0 si t1 != t2 1 sinon
+ENV rechercher_env (char* nom, ENV env);
+LFON rechercher_lfon(char* nom, LFON lfon);
+ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariables); //remplie le type de ENV en même temps
 #endif

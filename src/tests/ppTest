@@ -1,0 +1,7 @@
+var X1 : integer,
+var X2 : boolean,
+var T : array of array of integer
+
+
+X2 := 10 + T[1] ;
+X1 := X2 
