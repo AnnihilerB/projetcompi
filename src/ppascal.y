@@ -33,11 +33,13 @@
 
 %%
 //TODO: vérification de type
-MP: L_vart LD C  {  printf("T_ar = %d T_bool = %d T_int = %d\n", T_ar, T_boo, T_int);
+MP: L_vart LD C  {  
                     $$=creer_environnementGlobal($1, $2, $3);
-                    //$$->variablesGlobales = $1;
-                    //$$->listeDesFonctionsOuProcedure = $2;
-                    //$$->corpsGlobale = $3;
+                    $$->variablesGlobales = $1;
+                    $$->listeDesFonctionsOuProcedure = $2;
+                    $$->corpsGlobale = $3;
+                    printf("test: %p et %p\n", $$->variablesGlobales.debut, $$->variablesGlobales.fin);
+                    ecrire_prog($$->variablesGlobales, $$->listeDesFonctionsOuProcedure, $$->corpsGlobale);
                 }
     ;
 E: E Pl E {$$ = Nalloc(); $$->FG = $1; $$->codop = Pl; $$->FD =  $3;}
@@ -71,6 +73,7 @@ Ca: Wh E Do Ca {$$ = Nalloc(); $$->codop = Wh; $$->FG = $2; $$->FD = $4;}
   | If E Th C El Ca {$$ = Nalloc(); $$->codop = If; $$->FG = $2; NOE noeVide = Nalloc(); noeVide->FG = $4; noeVide->FD = $6; $$->FD = noeVide;}
   | Et Af E {$$ = Nalloc(); $$->codop = Af; $$->FG = $1; $$->FD = $3;}
   | V Af E {NOE v = Nalloc(); v->codop = V; v->ETIQ = yylval.nom; $$ = Nalloc(); $$->codop = Af; $$->FG = v; $$->FD = $3;}
+  | V '(' L_args ')' {NOE v = Nalloc(); v->codop = NFon; v->ETIQ = yylval.nom; $$ = v; $$->FG = $3; $$->FD = NULL;}
   ;
 L_args: %empty {$$ = NULL;}
     | L_argsnn {$$ = $1;}

@@ -11,7 +11,7 @@
 %}
 
 %%
-[0-9]|[1-9][0-9]+ {return I;}
+[0-9]|[1-9][0-9]+ {yylval.nom = strdup(yytext);return I;}
 := {return Af;}
 = {return Eq;}
 skip {return Sk;}
@@ -52,6 +52,7 @@ array" "of {return T_ar;}
 
 
 [A-Za-z]+|[A-Za-z]+[0-9]+ {
+    yylval.nom = strdup(yytext);
     if (declare == declareVariable)
         return V;
     else if (declare == declareFonction)

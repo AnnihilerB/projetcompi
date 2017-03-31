@@ -154,8 +154,7 @@ BILENV bilenv_vide(){
 BILENV creer_bilenv(ENV var){
 
 	BILENV bilenv = bilenv_vide();
-	bilenv.debut = var;
-	bilenv.fin = NULL;
+	bilenv.fin = bilenv.debut = var;	
 	return bilenv;
 
 }
