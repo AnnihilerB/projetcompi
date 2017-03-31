@@ -5,6 +5,8 @@
     #include "util.h"
     int yyerror(char* s);
     int yylex();
+    BILENV ListeVariablesGLOBALES;
+    BILFON ListeFonctionsGLOBALES;
 %}
 
 %union{
@@ -38,7 +40,6 @@ MP: L_vart LD C  {
                     $$->variablesGlobales = $1;
                     $$->listeDesFonctionsOuProcedure = $2;
                     $$->corpsGlobale = $3;
-                    printf("test: %p et %p\n", $$->variablesGlobales.debut, $$->variablesGlobales.fin);
                     ecrire_prog($$->variablesGlobales, $$->listeDesFonctionsOuProcedure, $$->corpsGlobale);
                 }
     ;
@@ -62,7 +63,7 @@ E: E Pl E {$$ = Nalloc(); $$->FG = $1; $$->codop = Pl; $$->FD =  $3;}
 Et: V '[' E ']' {NOE v = Nalloc(); v->codop = V; v->ETIQ = yylval.nom; $$ = Nalloc(); $$->codop = V; $$->FG = v; $$->FD = $3;}
     | Et '[' E ']' {$$ = Nalloc(); $$->FG = $1; $$->FD = $3;}
     ;
-C: C Se Ca {$$ = Nalloc(); $$->FG = $1; $$->codop = Se; $$->FD = $3;}
+C: C Se C {$$ = Nalloc(); $$->FG = $1; $$->codop = Se; $$->FD = $3;}
     | Sk {$$ = Nalloc(); $$->codop = Sk;}
     | '{' C '}' {$$ = $2;}
     | V '(' L_args ')' {NOE v = Nalloc(); v->codop = NFon; v->ETIQ = yylval.nom; $$ = v; $$->FG = $3; $$->FD = NULL;}
@@ -73,7 +74,8 @@ Ca: Wh E Do Ca {$$ = Nalloc(); $$->codop = Wh; $$->FG = $2; $$->FD = $4;}
   | If E Th C El Ca {$$ = Nalloc(); $$->codop = If; $$->FG = $2; NOE noeVide = Nalloc(); noeVide->FG = $4; noeVide->FD = $6; $$->FD = noeVide;}
   | Et Af E {$$ = Nalloc(); $$->codop = Af; $$->FG = $1; $$->FD = $3;}
   | V Af E {NOE v = Nalloc(); v->codop = V; v->ETIQ = yylval.nom; $$ = Nalloc(); $$->codop = Af; $$->FG = v; $$->FD = $3;}
-  | V '(' L_args ')' {NOE v = Nalloc(); v->codop = NFon; v->ETIQ = yylval.nom; $$ = v; $$->FG = $3; $$->FD = NULL;}
+  /*
+  | V '(' L_args ')' {NOE v = Nalloc(); v->codop = NFon; v->ETIQ = yylval.nom; $$ = v; $$->FG = $3; $$->FD = NULL;}*/
   ;
 L_args: %empty {$$ = NULL;}
     | L_argsnn {$$ = $1;}
@@ -94,7 +96,7 @@ TP: T_boo {$$ = Nalloc(); $$->codop = T_boo;}
     | T_ar TP {$$ = Nalloc(); $$->codop = T_ar; $$->FG = $2;}
     ;
 L_vart: %empty {$$ = bilenv_vide();}
-    | L_vartnn {$$ = $1;}
+    | L_vartnn {$$ = $1; ListeVariablesGLOBALES = $$;}
     ;
 L_vartnn: Var Argt {$$ = creer_bilenv($2);}
     | L_vartnn ',' Var Argt {$$ = concat($1, creer_bilenv($4));}
@@ -107,7 +109,7 @@ D: D_entp L_vart C {$$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$
     | D_entf L_vart C {$$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3;}
     ;
 LD: %empty {$$ = bilfon_vide();}
-    | LD D {$$ = concatfn($1, creer_bilfon($2));}
+    | LD D {$$ = concatfn($1, creer_bilfon($2)); ListeFonctionsGLOBALES = $$;}
     ;
 
 
