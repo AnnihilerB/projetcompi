@@ -8,6 +8,10 @@
     BILENV ListeVariables;
     BILFON ListeFonctionsGLOBALES;
     enum erreurs {NON_DEFINIE = 1, MAUVAIS_TYPE, MAUVAIS_TYPE_RETOUR, TYPES_DIFFERENT};
+
+    void renvoyer_erreur(char* nom, int erreur);
+    int verification_type_et_existence(char* nom1, char* nom2,ENV env1, ENV env2);
+    extern  void setEnv(EnvGlobal env);
 %}
 
 %union{
@@ -17,7 +21,7 @@
         LFON fon;
         ENV env;
         NOE noe;
-        char* nom[2];
+        char* nom[2]; //yylval.nom[0] -> variable, yylval.nom[1] -> entier
 }
 %start MP
 %token T_boo T_int Def Dep Af true false Se If Th El Var Wh Do Pl Mo Mu And Or Not Lt Eq Sk NFon NPro NewAr I V T_ar
@@ -25,21 +29,20 @@
 %type <fonctionOuProcedure> LD
 %type <envG> MP
 %type <varG> L_argt L_argtnn L_vart L_vartnn
-%type <noe> C E Et Ca L_args L_argsnn TP 
+%type <noe> C E Et Ca L_args L_argsnn TP V
 %type <env> Argt
 %type <fon> D_entp D_entf D
 %left Se
 %left Pl Mo Mu And Or Not Lt Eq
-%left Sk /*????*/
-%right Wh If V /*????*/
 
 %%
 //TODO: vérification de type
 MP: L_vart LD C  {  printf("t_int : %d t_boo : %d et t_ar: %d\n",T_int, T_boo, T_ar);
-                    $$=creer_environnementGlobal($1, $2, $3);
+                    $$=creer_environnementGlobal();
                     $$->variablesGlobales = $1;
                     $$->listeDesFonctionsOuProcedure = $2;
                     $$->corpsGlobale = $3;
+                    interpreteur($$);
                     ecrire_prog($$->variablesGlobales, $$->listeDesFonctionsOuProcedure, $$->corpsGlobale);
                 }
     ;
@@ -57,7 +60,7 @@ E: E Pl E {ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariables);
     | Not E {$$ = Nalloc(); $$->FD = $2;}
     | '(' E ')' {$$ = $2;}
     | I {$$ = Nalloc(); $$->codop = I; $$->ETIQ = yylval.nom[1];}
-    | V {$$ = Nalloc(); $$->codop = V; $$->ETIQ = yylval.nom[0];}
+    | V {$$ = $1;}
     | true {$$ = Nalloc(); $$->codop = true;}
     | false {$$ = Nalloc(); $$->codop = false;}
     | V '(' L_args ')' {NOE v = Nalloc(); v->codop = NFon; v->ETIQ = yylval.nom[0]; $$ = v; $$->FG = $3; $$->FD = NULL;}
@@ -77,7 +80,7 @@ C: C Se C {$$ = Nalloc(); $$->FG = $1; $$->codop = Se; $$->FD = $3;}
 Ca: Wh E Do Ca {$$ = Nalloc(); $$->codop = Wh; $$->FG = $2; $$->FD = $4;}
   | If E Th C El Ca {$$ = Nalloc(); $$->codop = If; $$->FG = $2; NOE noeVide = Nalloc(); noeVide->FG = $4; noeVide->FD = $6; $$->FD = noeVide;}
   | Et Af E {$$ = Nalloc(); $$->codop = Af; $$->FG = $1; $$->FD = $3;}
-  | V Af E {NOE v = Nalloc(); v->codop = V; v->ETIQ = yylval.nom[0]; $$ = Nalloc(); $$->codop = Af; $$->FG = v; $$->FD = $3;}
+  | V Af E {$$ = Nalloc(); $$->codop = Af; $$->FG = $1; $$->FD = $3; printf("Fils gauche : %s\n", $1->ETIQ); printf("Fils droit : %s\n", $3->ETIQ);}
   ;
 L_args: %empty {$$ = NULL;}
     | L_argsnn {$$ = $1;}
@@ -91,7 +94,7 @@ L_argt: %empty {$$ = bilenv_vide();}
 L_argtnn: Argt {$$ = creer_bilenv($1);}
     | L_argtnn ',' Argt {$$ = concat($1, creer_bilenv($3)); }
     ;
-Argt: V ':' TP {$$ = Envalloc(); $$->ID = yylval.nom[0]; $$->type = renvoie_type_avec_un_noeud($3);}
+Argt: V ':' TP {$$ = Envalloc(); $$->ID = $1->ETIQ; $$->type = renvoie_type_avec_un_noeud($3);}
     ;
 TP: T_boo {$$ = Nalloc(); $$->codop = T_boo;}
     | T_int {$$ = Nalloc(); $$->codop = T_int;}
