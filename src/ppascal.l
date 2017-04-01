@@ -52,7 +52,13 @@ array" "of {return T_ar;}
 
 
 [A-Za-z]+|[A-Za-z]+[0-9]+ {
-    yylval.nom[0] = strdup(yytext);
+    NOE v = Nalloc(); 
+    v->codop = V;
+    printf("YYTEXT : %s\n", yytext);
+    v->ETIQ = strdup(yytext); 
+    yylval.noe = v;
+    printf("Pares création : %s\n", yylval.noe->ETIQ);
+
     if (declare == declareVariable)
         return V;
     else if (declare == declareFonction)
