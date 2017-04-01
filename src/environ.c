@@ -86,7 +86,7 @@ int ecrire_env(ENV rho)
     {printf("fin d' environnement \n");
       return(EXIT_SUCCESS);}
   else
-    {printf("variable %s valeur %d \n",rho->ID,rho->VAL);
+    {printf("variable %s valeur %d type %d\n",rho->ID,rho->VAL, rho->type.type);
       ecrire_env(rho->SUIV); 
       return(EXIT_SUCCESS);
     };

@@ -154,8 +154,8 @@ BILENV bilenv_vide(){
 BILENV creer_bilenv(ENV var){
 
 	BILENV bilenv = bilenv_vide();
-	bilenv.debut = var;
-	bilenv.fin = NULL;
+	bilenv.fin = bilenv.debut = var;
+        bilenv.debut->SUIV = bilenv.fin->SUIV = NULL;
 	return bilenv;
 
 }
@@ -189,10 +189,8 @@ BILENV concat(BILENV b1, BILENV b2){
 void ecrire_bilenv(BILENV b){
     ENV e = b.debut;
     printf("Début BILENV\n");
-    while (e != NULL){
+    if (e != NULL)
         ecrire_env(e);
-        e = e->SUIV;
-    }
     printf("fin BILENV\n");
 }
 void affectb(BILENV rho_gb, BILENV rho_lc, char *lhs, int rhs) {
@@ -263,15 +261,8 @@ BILFON creer_bilfon(LFON pfon)
 {
     BILFON b = bilfon_vide();
     b.debut = pfon;
-    LFON w = b.debut;
-    if (w != NULL)
-    {
-        while (w->SUIV != NULL)
-        {
-            w = w->SUIV;
-        }
-    }
-    b.fin = w;
+    b.fin = b.debut;
+    b.debut->SUIV = b.fin->SUIV = NULL;
     return b;
 }
 BILFON copier_bilfon(BILFON bfn)

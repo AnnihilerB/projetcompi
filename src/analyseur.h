@@ -7,12 +7,13 @@ typedef struct envg{
     BILFON listeDesFonctionsOuProcedure;
 } *EnvGlobal;
 
-typedef struct {
-    int dim;    //si 0 alors c'est qe ce n'est pas un tableau
-    int type;    
-} Type;
+
 
 EnvGlobal creer_environnementGlobal(); 
-int renvoie_type(BILENV* variables, char* nomVar);      //renvoie -1 si pas trouvé
-int compare_type(int type, NOE varATester); //l'idée c'est que le type de varATester est en fait son filsGauche et que son filsGauche peut avoir un filsGauche ETC donc on va parcourir ça et voir si c'est égale à type (en additionnant la valeur des filsGauche)
+Type renvoie_type_fonction (LFON fonctionOuProcedure);
+Type renvoie_type_avec_un_noeud(NOE n);
+int compare_type(Type t1, Type t2); //retourne 0 si t1 != t2 1 sinon
+ENV rechercher_env (char* nom, ENV env);
+LFON rechercher_lfon(char* nom, LFON lfon);
+ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariables); //remplie le type de ENV en même temps
 #endif
