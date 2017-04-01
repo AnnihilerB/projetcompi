@@ -210,8 +210,7 @@ LFON copier_fon(LFON lfn){
     fcopie->ID = lfn->ID;
     fcopie->PARAM = copier_bilenv(lfn->PARAM);
     fcopie->VARLOC = copier_bilenv(lfn->VARLOC);
-    //TODO : fonction copier_noe
-    //fcopie->CORPS = copier_noe(lfn->CORPS);
+    fcopie->CORPS = copier_noe(lfn->CORPS);
     if (lfn->SUIV != NULL)
         fcopie->SUIV = copier_fon(lfn->SUIV);
     else
@@ -228,8 +227,7 @@ void ecrire_fon(LFON bfn){
     ecrire_bilenv(bfn->VARLOC);
     printf("Fin variables locales\n");
     printf("Début corps : \n");
-    //TODO : ecrire_noe
-    //ecrire_noe(bfn->CORPS);
+    ecrire_noe(bfn->CORPS);
     printf("Fin corps\n");
     if (bfn->SUIV != NULL){
         printf("Passage fonction suivante\n\n");

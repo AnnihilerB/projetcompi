@@ -12,7 +12,7 @@
 
 %union{
         EnvGlobal envG;
-        BILFON fOUp;
+        BILFON fonctionOuProcedure;
         BILENV varG;
         LFON fon;
         ENV env;
@@ -22,7 +22,7 @@
 %start MP
 %token T_boo T_int Def Dep Af true false Se If Th El Var Wh Do Pl Mo Mu And Or Not Lt Eq Sk NFon NPro NewAr I V T_ar
 
-%type <fOUp> LD
+%type <fonctionOuProcedure> LD
 %type <envG> MP
 %type <varG> L_argt L_argtnn L_vart L_vartnn
 %type <noe> C E Et Ca L_args L_argsnn TP 

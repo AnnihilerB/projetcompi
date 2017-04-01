@@ -1,6 +1,6 @@
 /* util.h */
 #ifndef UTIL_H
-#define UTIL_H 
+#define UTIL_H
 
 #include "environ.h"
 
@@ -61,7 +61,7 @@ extern void affectb(BILENV rho_gb, BILENV rho_lc, char *lhs, int rhs);
 /* pointe vers cette fonction */
 extern LFON copier_fon(LFON lfn);    /* pointe vers une copie                */
 extern void ecrire_fon(LFON bfn);
-extern LFON rechfon(char *chaine, LFON listident);/* retourne la position de chaine*/ 
+extern LFON rechfon(char *chaine, LFON listident);/* retourne la position de chaine*/
 /*---------------------bilistes-de-fonctions --------------------------------*/
 extern BILFON bilfon_vide() ;                  /* retourne une biliste vide  */
 extern BILFON creer_bilfon(LFON pfon);  /* retourne une biliste a un element */
