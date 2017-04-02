@@ -42,7 +42,7 @@ MP: L_vart LD C  {  printf("t_int : %d t_boo : %d et t_ar: %d\n",T_int, T_boo, T
                     $$->variablesGlobales = $1;
                     $$->listeDesFonctionsOuProcedure = $2;
                     $$->corpsGlobale = $3;
-                    interpreteur($$);
+                    //interpreteur($$);
                     ecrire_prog($$->variablesGlobales, $$->listeDesFonctionsOuProcedure, $$->corpsGlobale);
                 }
     ;
@@ -63,24 +63,24 @@ E: E Pl E {ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariables);
     | V {$$ = $1;}
     | true {$$ = Nalloc(); $$->codop = true;}
     | false {$$ = Nalloc(); $$->codop = false;}
-    | V '(' L_args ')' {NOE v = Nalloc(); v->codop = NFon; v->ETIQ = yylval.nom[0]; $$ = v; $$->FG = $3; $$->FD = NULL;}
+    | V '(' L_args ')' { $$ = $1; $$->FG = $3; $$->FD = NULL;}
     | NewAr TP '[' E ']' {$$ = Nalloc(); $$->codop = NewAr; $$->FG = $2; $$->FD = $4;}
     | Et {$$ = $1;}
     ;
-Et: V '[' E ']' {NOE v = Nalloc(); v->codop = V; v->ETIQ = yylval.nom[0]; $$ = Nalloc(); $$->codop = V; $$->ETIQ = v->ETIQ; $$->FG = v; $$->FD = $3; }
+Et: V '[' E ']' {NOE v = Nalloc(); v->codop = V; v->ETIQ = $1->ETIQ; $$ = Nalloc(); $$->codop = V; $$->ETIQ = v->ETIQ; $$->FG = $1; $$->FD = $3; }
     | Et '[' E ']' {$$ = Nalloc() ;$$->FG = $1; $$->FD = $3; $$->ETIQ = $1->ETIQ;}
     ;
 C: C Se C {$$ = Nalloc(); $$->FG = $1; $$->codop = Se; $$->FD = $3;}
     | Sk {$$ = Nalloc(); $$->codop = Sk;}
     | '{' C '}' {$$ = $2;}
-    | V '(' L_args ')' {NOE v = Nalloc(); v->codop = NFon; v->ETIQ = yylval.nom[0]; $$ = v; $$->FG = $3; $$->FD = NULL;}
+    | V '(' L_args ')' { $$ = $1; $$->FG = $3; $$->FD = NULL;}
     | Ca {$$ = $1;}
     ;
 
 Ca: Wh E Do Ca {$$ = Nalloc(); $$->codop = Wh; $$->FG = $2; $$->FD = $4;}
   | If E Th C El Ca {$$ = Nalloc(); $$->codop = If; $$->FG = $2; NOE noeVide = Nalloc(); noeVide->FG = $4; noeVide->FD = $6; $$->FD = noeVide;}
   | Et Af E {$$ = Nalloc(); $$->codop = Af; $$->FG = $1; $$->FD = $3;}
-  | V Af E {$$ = Nalloc(); $$->codop = Af; $$->FG = $1; $$->FD = $3; printf("Fils gauche : %s\n", $1->ETIQ); printf("Fils droit : %s\n", $3->ETIQ);}
+  | V Af E {$$ = Nalloc(); $$->codop = Af; $$->FG = $1; $$->FD = $3; }
   ;
 L_args: %empty {$$ = NULL;}
     | L_argsnn {$$ = $1;}

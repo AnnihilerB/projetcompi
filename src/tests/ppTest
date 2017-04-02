@@ -1,7 +1,7 @@
 var X1 : integer,
 var X2 : boolean,
-var T : array of array of integer
+var T :  integer
 
 
-X2 := 10 + T[1] ;
+X2 := 10 + f() ;
 X1 := X2 

@@ -21,8 +21,8 @@ Type renvoie_type_fonction (LFON fonctionOuProcedure)
 Type renvoie_type_avec_un_noeud(NOE n)
 {
     int dimension = 0;
-    NOE w = n->FG;
-    while (w != NULL)
+    NOE w = n;
+    while (w->FG != NULL)
     {
         dimension ++;
         w = w->FG;
@@ -32,9 +32,7 @@ Type renvoie_type_avec_un_noeud(NOE n)
     if (w != NULL)
         t.type = w->codop;
     else
-    {
         t.type = n->codop;
-    }
     return t;
 }
 int compare_type(Type t1, Type t2)
@@ -90,8 +88,9 @@ ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariables)
         if (noeud->FG != NULL && noeud->FD != NULL) //c'est un tableau
         {
             nomENV = noeud->ETIQ;
-            
             envTrouve = rechercher_env(nomENV, listeVariables.debut);
+            if (envTrouve == NULL)
+                return NULL;
             if (envTrouve->type.dim != trouver_dimension_type_noeud(noeud))
                 envTrouve->type.type = T_ar;
             envTrouve->type.dim = 0;

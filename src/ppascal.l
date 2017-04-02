@@ -54,10 +54,10 @@ array" "of {return T_ar;}
 [A-Za-z]+|[A-Za-z]+[0-9]+ {
     NOE v = Nalloc(); 
     v->codop = V;
-    printf("YYTEXT : %s\n", yytext);
+    //printf("YYTEXT : %s\n", yytext);
     v->ETIQ = strdup(yytext); 
     yylval.noe = v;
-    printf("Pares création : %s\n", yylval.noe->ETIQ);
+    //printf("Pares création : %s\n", yylval.noe->ETIQ);
 
     if (declare == declareVariable)
         return V;
