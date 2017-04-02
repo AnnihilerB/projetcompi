@@ -91,7 +91,7 @@ ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariables)
             envTrouve = rechercher_env(nomENV, listeVariables.debut);
             if (envTrouve == NULL)
                 return NULL;
-            if (envTrouve->type.dim != trouver_dimension_type_noeud(noeud))
+            if (envTrouve->type.dim != trouver_dimension_type_noeud(noeud))     //si son type la dimension de la variable n'est pas égale à la dimension déclaré, alors on dit que la variable a pour type T_ar et donc il a un mauvais type
                 envTrouve->type.type = T_ar;
             envTrouve->type.dim = 0;
             

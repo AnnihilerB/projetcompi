@@ -46,17 +46,89 @@ MP: L_vart LD C  {  printf("t_int : %d t_boo : %d et t_ar: %d\n",T_int, T_boo, T
                     ecrire_prog($$->variablesGlobales, $$->listeDesFonctionsOuProcedure, $$->corpsGlobale);
                 }
     ;
-E: E Pl E {ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariables);
-           ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariables);
-           if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
-                return 1;
-    $$ = Nalloc(); $$->FG = $1; $$->codop = Pl; $$->FD =  $3;}
-    | E Mo E {$$ = Nalloc(); $$->FG = $1; $$->codop = Mo; $$->FD =  $3;}
-    | E Mu E {$$ = Nalloc(); $$->FG = $1; $$->codop = Mu; $$->FD =  $3;}
-    | E Or E {$$ = Nalloc(); $$->FG = $1; $$->codop = Or; $$->FD =  $3;}        
-    | E Lt E {$$ = Nalloc(); $$->FG = $1; $$->codop = Lt; $$->FD =  $3;}        
-    | E Eq E {$$ = Nalloc(); $$->FG = $1; $$->codop = Eq; $$->FD =  $3;}        
-    | E And E {$$ = Nalloc(); $$->FG = $1; $$->codop = And; $$->FD =  $3;}      
+E: E Pl E   {
+                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariables);
+                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariables);
+                if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
+                    return 1;
+                if (env1->type.type != T_int && env2->type.type != T_int)
+                {
+                    fprintf("addition possible seulement entre integer\n");
+                    return 1;
+                }
+                $$ = Nalloc(); $$->FG = $1; $$->codop = Pl; $$->FD =  $3;
+            }
+            
+    | E Mo E {
+                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariables);
+                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariables);
+                if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
+                    return 1;
+                if (env1->type.type != T_int && env2->type.type != T_int)
+                {
+                    fprintf("soustraction possible seulement entre integer\n");
+                    return 1;
+                }
+                $$ = Nalloc(); $$->FG = $1; $$->codop = Mo; $$->FD =  $3;
+             }
+             
+    | E Mu E {
+                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariables);
+                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariables);
+                if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
+                    return 1;
+                if (env1->type.type != T_int && env2->type.type != T_int)
+                {
+                    fprintf("multiplication possible seulement entre integer\n");
+                    return 1;
+                }
+                $$ = Nalloc(); $$->FG = $1; $$->codop = Mu; $$->FD =  $3;
+             }
+             
+    | E Or E {
+                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariables);
+                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariables);
+                if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
+                    return 1;
+                if (env1->type.type != T_boo && env2->type.type != T_boo)
+                {
+                    fprintf("ou possible seulement entre boolean\n");
+                    return 1;
+                }
+                $$ = Nalloc(); $$->FG = $1; $$->codop = Or; $$->FD =  $3;
+             }
+             
+    | E Lt E {
+                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariables);
+                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariables);
+                if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
+                    return 1;
+                if (env1->type.type != T_int && env2->type.type != T_int)
+                {
+                    fprintf("comparaison possible seulement entre integer\n");
+                    return 1;
+                }
+                $$ = Nalloc(); $$->FG = $1; $$->codop = Lt; $$->FD =  $3;
+             }        
+    | E Eq E {
+                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariables);
+                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariables);
+                if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
+                    return 1;
+                $$ = Nalloc(); $$->FG = $1; $$->codop = Eq; $$->FD =  $3;
+             }        
+    | E And E {
+                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariables);
+                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariables);
+                if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
+                    return 1;
+                if (env1->type.type != T_boo && env2->type.type != T_boo)
+                {
+                    fprintf("ou possible seulement entre boolean\n");
+                    return 1;
+                }
+                $$ = Nalloc(); $$->FG = $1; $$->codop = And; $$->FD =  $3;
+              }      
     | Not E {$$ = Nalloc(); $$->FD = $2;}
     | '(' E ')' {$$ = $2;}
     | I {$$ = Nalloc(); $$->codop = I; $$->ETIQ = yylval.nom[1];}
@@ -134,7 +206,7 @@ int verification_type_et_existence(char* nom1, char* nom2,ENV env1, ENV env2)
     {
         if (env1->type.type == 0)   //procédure
             renvoyer_erreur(nom1, MAUVAIS_TYPE_RETOUR);
-        else if (env1->type.type == 0)
+        else if (env2->type.type == 0)
             renvoyer_erreur(nom2, MAUVAIS_TYPE_RETOUR);
         else if (compare_type(env1->type, env2->type) != 1)
         {

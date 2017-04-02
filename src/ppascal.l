@@ -52,6 +52,7 @@ array" "of {return T_ar;}
 
 
 [A-Za-z]+|[A-Za-z]+[0-9]+ {
+    yylval.nom[0] 
     NOE v = Nalloc(); 
     v->codop = V;
     //printf("YYTEXT : %s\n", yytext);
