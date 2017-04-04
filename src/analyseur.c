@@ -77,7 +77,7 @@ int trouver_dimension_type_noeud(NOE noeud)
     }
     return dimension;
 }
-ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariables)
+ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariablesGlobale, BILENV listeVariablesLocales)
 {
     if (noeud == NULL)
         return NULL;
@@ -88,8 +88,9 @@ ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariables)
         if (noeud->FG != NULL && noeud->FD != NULL) //c'est un tableau
         {
             nomENV = noeud->ETIQ;
-            envTrouve = rechercher_env(nomENV, listeVariables.debut);
-            if (envTrouve == NULL)
+            
+            envTrouve = rechercher_env(nomENV, listeVariablesLocales.debut);
+            if (envTrouve == NULL && (envTrouve = rechercher_env(nomENV, listeVariablesGlobale.debut)) == NULL)
                 return NULL;
             if (envTrouve->type.dim != trouver_dimension_type_noeud(noeud))     //si son type la dimension de la variable n'est pas égale à la dimension déclaré, alors on dit que la variable a pour type T_ar et donc il a un mauvais type
                 envTrouve->type.type = T_ar;
@@ -99,7 +100,10 @@ ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariables)
         else        //variable "classique"
         {
             nomENV = noeud->ETIQ;            
-            envTrouve = rechercher_env(nomENV, listeVariables.debut);
+            envTrouve = rechercher_env(nomENV, listeVariablesLocales.debut);
+            if (envTrouve == NULL)
+                envTrouve = rechercher_env(nomENV, listeVariablesGlobale.debut);
+            
         }
         
         

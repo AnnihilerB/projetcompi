@@ -5,10 +5,11 @@
     #include "util.h"
     int yyerror(char* s);
     int yylex();
-    BILENV ListeVariables;
+    BILENV ListeVariablesGLOBALES;
     BILFON ListeFonctionsGLOBALES;
-    BILFON ListeFonctionsLOCALES;
+    BILENV ListeVariablesLOCALES;
     enum erreurs {NON_DEFINIE = 1, MAUVAIS_TYPE, MAUVAIS_TYPE_RETOUR, TYPES_DIFFERENT};
+    int estDansFonction;
 
     void renvoyer_erreur(char* nom, int erreur);
     int verification_type_et_existence(char* nom1, char* nom2,ENV env1, ENV env2);
@@ -48,8 +49,8 @@ MP: L_vart LD C  {  printf("t_int : %d t_boo : %d et t_ar: %d\n",T_int, T_boo, T
                 }
     ;
 E: E Pl E   {
-                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariables);
-                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariables);
+                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
                 if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
                     return 1;
                 if (env1->type.type != T_int && env2->type.type != T_int)
@@ -61,8 +62,8 @@ E: E Pl E   {
             }
             
     | E Mo E {
-                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariables);
-                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariables);
+                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
                 if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
                     return 1;
                 if (env1->type.type != T_int && env2->type.type != T_int)
@@ -74,8 +75,8 @@ E: E Pl E   {
              }
              
     | E Mu E {
-                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariables);
-                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariables);
+                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
                 if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
                     return 1;
                 if (env1->type.type != T_int && env2->type.type != T_int)
@@ -87,8 +88,8 @@ E: E Pl E   {
              }
              
     | E Or E {
-                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariables);
-                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariables);
+                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
                 if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
                     return 1;
                 if (env1->type.type != T_boo && env2->type.type != T_boo)
@@ -100,8 +101,8 @@ E: E Pl E   {
              }
              
     | E Lt E {
-                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariables);
-                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariables);
+                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
                 if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
                     return 1;
                 if (env1->type.type != T_int && env2->type.type != T_int)
@@ -112,15 +113,15 @@ E: E Pl E   {
                 $$ = Nalloc(); $$->FG = $1; $$->codop = Lt; $$->FD =  $3;
              }        
     | E Eq E {
-                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariables);
-                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariables);
+                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
                 if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
                     return 1;
                 $$ = Nalloc(); $$->FG = $1; $$->codop = Eq; $$->FD =  $3;
              }        
     | E And E {
-                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariables);
-                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariables);
+                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
                 if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
                     return 1;
                 if (env1->type.type != T_boo && env2->type.type != T_boo)
@@ -131,13 +132,13 @@ E: E Pl E   {
                 $$ = Nalloc(); $$->FG = $1; $$->codop = And; $$->FD =  $3;
               }      
     | Not E {
-                Env env = existe($2, ListeFonctionsGLOBALES, ListeVariables);
+                ENV env = existe($2, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
                 if (env == NULL)
                 {
                     renvoyer_erreur($2->ETIQ, NON_DEFINIE);
                     return 1;
                 }
-                else if (env->type.type != T_boo)
+                if (env->type.type != T_boo)
                 {
                     fprintf(stderr, "not possible seulement avec un boolean\n");
                     return 1;
@@ -145,14 +146,14 @@ E: E Pl E   {
                 $$ = Nalloc(); $$->codop = Not; $$->FD = $2;
             }
     | '(' E ')' {
-                    Env env = existe($2, ListeFonctionsGLOBALES, ListeVariables);
+                    ENV env = existe($2, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
                     
                     $$ = $2;
                 }
     | I {$$ = Nalloc(); $$->codop = I; $$->ETIQ = yylval.nom[1];}
     | V {$$ = $1;}
-    | true {$$ = Nalloc(); $$->codop = true;}
-    | false {$$ = Nalloc(); $$->codop = false;}
+    | true {$$ = Nalloc(); $$->codop = T_boo; $$->ETIQ = "true";}
+    | false {$$ = Nalloc(); $$->codop = T_boo; $$->ETIQ = "false";}
     | V '(' L_args ')' { $$ = $1; $$->FG = $3; $$->FD = NULL;}
     | NewAr TP '[' E ']' {$$ = Nalloc(); $$->codop = NewAr; $$->FG = $2; $$->FD = $4;}
     | Et {$$ = $1;}
@@ -191,17 +192,22 @@ TP: T_boo {$$ = Nalloc(); $$->codop = T_boo;}
     | T_ar TP {$$ = Nalloc(); $$->codop = T_ar; $$->FG = $2;}
     ;
 L_vart: %empty {$$ = bilenv_vide();}
-    | L_vartnn {$$ = $1; ListeVariables = $$;}
+    | L_vartnn {    $$ = $1; 
+                    if (estDansFonction == false)
+                        ListeVariablesGLOBALES = $$;
+                    else
+                        concat(ListeVariablesLOCALES, copier_bilenv($$));
+               }
     ;
 L_vartnn: Var Argt {$$ = creer_bilenv($2);}
     | L_vartnn ',' Var Argt {$$ = concat($1, creer_bilenv($4)); }
     ;
-D_entp: Dep NPro '(' L_argt ')' {$$ = Lfonalloc(); $$->ID = yylval.nom[0]; $$->PARAM = $4;}
+D_entp: Dep NPro '(' L_argt ')' {$$ = Lfonalloc(); $$->ID = yylval.nom[0]; $$->PARAM = $4; ListeVariablesLOCALES = copier_bilenv($4); estDansFonction = true;}
     ;
-D_entf: Def NFon '(' L_argt ')' ':' TP {$$ = Lfonalloc(); $$->ID = yylval.nom[0]; ENV e = Envalloc(); e->ID = NULL; e->type = renvoie_type_avec_un_noeud($7); $$->PARAM = concat(creer_bilenv(e), $4);}
+D_entf: Def NFon '(' L_argt ')' ':' TP {$$ = Lfonalloc(); $$->ID = yylval.nom[0]; ENV e = Envalloc(); e->ID = NULL; e->type = renvoie_type_avec_un_noeud($7); $$->PARAM = concat(creer_bilenv(e), $4); ListeVariablesLOCALES = copier_bilenv($4); estDansFonction = true;}
     ;
-D: D_entp L_vart C {$$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3;}
-    | D_entf L_vart C {$$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3;}
+D: D_entp L_vart C {$$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3;estDansFonction = false; ListeVariablesLOCALES = bilenv_vide();}
+    | D_entf L_vart C {$$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3; estDansFonction = false; ListeVariablesLOCALES = bilenv_vide();}
     ;
 LD: %empty {$$ = bilfon_vide();}
     | LD D {$$ = concatfn($1, creer_bilfon($2)); ListeFonctionsGLOBALES = $$;}
@@ -209,19 +215,13 @@ LD: %empty {$$ = bilfon_vide();}
 
 
 %%
-BILENV retourner_variables_fonctions(LFON fonction)
-{
-    BILENV param = copier_bilenv(fonction->PARAM);
-    BILENV varloc = copier_bilenv(fonction->VARLOC);
-    return concat(param,varloc);
-}
-int verfication_existence (Env env)
+int verfication_existence (ENV env)
 {
     
 }
 int verification_type_et_existence(char* nom1, char* nom2,ENV env1, ENV env2)
 {
-
+    printf("test\n");
     int retour = 1;
     if (env1 == NULL || env2 == NULL)
     {
@@ -271,6 +271,8 @@ int yywrap()
 }
 int main(int argn, char** argv)
 {
+    ListeVariablesLOCALES = bilenv_vide();
+    estDansFonction = false;
     yyparse();
     return 0;
 }
