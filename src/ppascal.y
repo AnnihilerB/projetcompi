@@ -7,6 +7,7 @@
     int yylex();
     BILENV ListeVariables;
     BILFON ListeFonctionsGLOBALES;
+    BILFON ListeFonctionsLOCALES;
     enum erreurs {NON_DEFINIE = 1, MAUVAIS_TYPE, MAUVAIS_TYPE_RETOUR, TYPES_DIFFERENT};
 
     void renvoyer_erreur(char* nom, int erreur);
@@ -53,7 +54,7 @@ E: E Pl E   {
                     return 1;
                 if (env1->type.type != T_int && env2->type.type != T_int)
                 {
-                    fprintf("addition possible seulement entre integer\n");
+                    fprintf(stderr, "addition possible seulement entre integer\n");
                     return 1;
                 }
                 $$ = Nalloc(); $$->FG = $1; $$->codop = Pl; $$->FD =  $3;
@@ -66,7 +67,7 @@ E: E Pl E   {
                     return 1;
                 if (env1->type.type != T_int && env2->type.type != T_int)
                 {
-                    fprintf("soustraction possible seulement entre integer\n");
+                    fprintf(stderr, "soustraction possible seulement entre integer\n");
                     return 1;
                 }
                 $$ = Nalloc(); $$->FG = $1; $$->codop = Mo; $$->FD =  $3;
@@ -79,7 +80,7 @@ E: E Pl E   {
                     return 1;
                 if (env1->type.type != T_int && env2->type.type != T_int)
                 {
-                    fprintf("multiplication possible seulement entre integer\n");
+                    fprintf(stderr, "multiplication possible seulement entre integer\n");
                     return 1;
                 }
                 $$ = Nalloc(); $$->FG = $1; $$->codop = Mu; $$->FD =  $3;
@@ -92,7 +93,7 @@ E: E Pl E   {
                     return 1;
                 if (env1->type.type != T_boo && env2->type.type != T_boo)
                 {
-                    fprintf("ou possible seulement entre boolean\n");
+                    fprintf(stderr, "ou possible seulement entre boolean\n");
                     return 1;
                 }
                 $$ = Nalloc(); $$->FG = $1; $$->codop = Or; $$->FD =  $3;
@@ -105,7 +106,7 @@ E: E Pl E   {
                     return 1;
                 if (env1->type.type != T_int && env2->type.type != T_int)
                 {
-                    fprintf("comparaison possible seulement entre integer\n");
+                    fprintf(stderr, "comparaison possible seulement entre integer\n");
                     return 1;
                 }
                 $$ = Nalloc(); $$->FG = $1; $$->codop = Lt; $$->FD =  $3;
@@ -124,13 +125,30 @@ E: E Pl E   {
                     return 1;
                 if (env1->type.type != T_boo && env2->type.type != T_boo)
                 {
-                    fprintf("ou possible seulement entre boolean\n");
+                    fprintf(stderr, "and possible seulement entre boolean\n");
                     return 1;
                 }
                 $$ = Nalloc(); $$->FG = $1; $$->codop = And; $$->FD =  $3;
               }      
-    | Not E {$$ = Nalloc(); $$->FD = $2;}
-    | '(' E ')' {$$ = $2;}
+    | Not E {
+                Env env = existe($2, ListeFonctionsGLOBALES, ListeVariables);
+                if (env == NULL)
+                {
+                    renvoyer_erreur($2->ETIQ, NON_DEFINIE);
+                    return 1;
+                }
+                else if (env->type.type != T_boo)
+                {
+                    fprintf(stderr, "not possible seulement avec un boolean\n");
+                    return 1;
+                }
+                $$ = Nalloc(); $$->codop = Not; $$->FD = $2;
+            }
+    | '(' E ')' {
+                    Env env = existe($2, ListeFonctionsGLOBALES, ListeVariables);
+                    
+                    $$ = $2;
+                }
     | I {$$ = Nalloc(); $$->codop = I; $$->ETIQ = yylval.nom[1];}
     | V {$$ = $1;}
     | true {$$ = Nalloc(); $$->codop = true;}
@@ -191,6 +209,16 @@ LD: %empty {$$ = bilfon_vide();}
 
 
 %%
+BILENV retourner_variables_fonctions(LFON fonction)
+{
+    BILENV param = copier_bilenv(fonction->PARAM);
+    BILENV varloc = copier_bilenv(fonction->VARLOC);
+    return concat(param,varloc);
+}
+int verfication_existence (Env env)
+{
+    
+}
 int verification_type_et_existence(char* nom1, char* nom2,ENV env1, ENV env2)
 {
 
@@ -211,7 +239,6 @@ int verification_type_et_existence(char* nom1, char* nom2,ENV env1, ENV env2)
         else if (compare_type(env1->type, env2->type) != 1)
         {
             fprintf(stderr, "%s et %s n'ont pas les même type\n", nom1, nom2);
-            renvoyer_erreur(NULL, TYPES_DIFFERENT);
         }
         else
             retour = 0;
@@ -227,9 +254,10 @@ void renvoyer_erreur(char* nom, int erreur)
     if (erreur == NON_DEFINIE)
         fprintf(stderr, "non definie");
     else if (erreur == MAUVAIS_TYPE)
-        fprintf(stderr, "2 types ne sont pas les mêmes");
+        fprintf(stderr, "est du mauvais type");
     else if (erreur == MAUVAIS_TYPE_RETOUR)
         fprintf(stderr, "le type de retour est mauvais");
+        
     fprintf(stderr, "\n");
 }
 int yyerror(char *s)
