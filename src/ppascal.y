@@ -47,7 +47,7 @@ MP: L_vart LD C  {  printf("t_int : %d t_boo : %d et t_ar: %d et Nfon: %d\n",T_i
                     $$->listeDesFonctionsOuProcedure = $2;
                     $$->corpsGlobale = $3;
                     //interpreteur($$);
-                    ecrire_prog($$->variablesGlobales, $$->listeDesFonctionsOuProcedure, $$->corpsGlobale);
+                    //ecrire_prog($$->variablesGlobales, $$->listeDesFonctionsOuProcedure, $$->corpsGlobale);
                 }
     ;
 E: E Pl E   {
@@ -121,7 +121,7 @@ E: E Pl E   {
                     return 1;
                 $$ = Nalloc(); $$->FG = $1; $$->codop = Eq; $$->FD =  $3;
              }        
-    | E And E {
+    | E And E { 
                 ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
                 ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
                 if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
@@ -166,7 +166,7 @@ E: E Pl E   {
             }
             $$ = $1;
         }
-    | true {$$ = Nalloc(); $$->codop = T_boo; $$->ETIQ = "true";}
+    | true {printf("true\n");$$ = Nalloc(); $$->codop = T_boo; $$->ETIQ = "true";}
     | false {$$ = Nalloc(); $$->codop = T_boo; $$->ETIQ = "false";}
     | V '(' L_args ')' {
                             LFON fonction = rechercher_lfon($1->ETIQ,ListeFonctionsGLOBALES.debut);
@@ -179,11 +179,50 @@ E: E Pl E   {
                                 return 1;
                             $$ = Nalloc(); $$->codop = NFon; $$->ETIQ = $1->ETIQ; $$->FG = $3; $$->FD = NULL;
                        }
-    | NewAr TP '[' E ']' {$$ = Nalloc(); $$->codop = NewAr; $$->FG = $2; $$->FD = $4;}
+    | NewAr TP '[' E ']' {
+                            ENV env = existe($4, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+                            if (env == NULL)
+                            {
+                                renvoyer_erreur($4->ETIQ, NON_DEFINIE);
+                                return 1;
+                            }
+                            if (env->type.type != T_int)
+                            {
+                                fprintf(stderr,"l'indice ou la taille d'un tableau doit être un int\n");
+                                return 1;
+                            }
+                            $$ = Nalloc(); $$->codop = NewAr; $$->FG = $2; $$->FD = $4;
+                         }
     | Et {$$ = $1;}
     ;
-Et: V '[' E ']' {NOE v = Nalloc(); v->codop = V; v->ETIQ = $1->ETIQ; $$ = Nalloc(); $$->codop = V; $$->ETIQ = v->ETIQ; $$->FG = $1; $$->FD = $3; }
-    | Et '[' E ']' {$$ = Nalloc() ;$$->FG = $1; $$->FD = $3; $$->ETIQ = $1->ETIQ;}
+Et: V '[' E ']' {   
+                    ENV env = existe($3, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+                    if (env == NULL)
+                    {
+                        renvoyer_erreur($3->ETIQ, NON_DEFINIE);
+                        return 1;
+                    }
+                    if (env->type.type != T_int)
+                    {
+                        fprintf(stderr,"l'indice ou la taille d'un tableau doit être un int\n");
+                        return 1;
+                    }
+                    NOE v = Nalloc(); v->codop = V; v->ETIQ = $1->ETIQ; $$ = Nalloc(); $$->codop = V; $$->ETIQ = v->ETIQ; $$->FG = $1; $$->FD = $3; 
+                }
+    | Et '[' E ']' {
+                        ENV env = existe($3, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+                        if (env == NULL)
+                        {
+                            renvoyer_erreur($3->ETIQ, NON_DEFINIE);
+                            return 1;
+                        }
+                        if (env->type.type != T_int)
+                        {
+                            fprintf(stderr,"l'indice ou la taille d'un tableau doit être un int\n");
+                            return 1;
+                        }
+                            $$ = Nalloc() ;$$->FG = $1; $$->FD = $3; $$->ETIQ = $1->ETIQ;
+                    }
     ;
 C: C Se C {$$ = Nalloc(); $$->FG = $1; $$->codop = Se; $$->FD = $3;}
     | Sk {$$ = Nalloc(); $$->codop = Sk;}
@@ -192,16 +231,54 @@ C: C Se C {$$ = Nalloc(); $$->FG = $1; $$->codop = Se; $$->FD = $3;}
     | Ca {$$ = $1;}
     ;
 
-Ca: Wh E Do C {$$ = Nalloc(); $$->codop = Wh; $$->FG = $2; $$->FD = $4;}
-  | If E Th C El Ca {$$ = Nalloc(); $$->codop = If; $$->FG = $2; NOE noeVide = Nalloc(); noeVide->FG = $4; noeVide->FD = $6; $$->FD = noeVide;}
-  | Et Af E {$$ = Nalloc(); $$->codop = Af; $$->FG = $1; $$->FD = $3;}
-  | V Af E {$$ = Nalloc(); $$->codop = Af; $$->FG = $1; $$->FD = $3; }
+Ca: Wh E Do C {
+                ENV env = existe($2, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+                if (env == NULL)
+                {
+                    renvoyer_erreur($2->ETIQ, NON_DEFINIE);
+                    return 1;
+                }
+                if (env->type.type != T_boo)
+                {
+                    fprintf(stderr, "la condition de la boucle while n'est pas un boolean\n");
+                    return 1;
+                }
+                $$ = Nalloc(); $$->codop = Wh; $$->FG = $2; $$->FD = $4;
+              }
+  | If E Th C El Ca {
+                        ENV env = existe($2, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+                        if (env == NULL)
+                        {
+                            renvoyer_erreur($2->ETIQ, NON_DEFINIE);
+                            return 1;
+                        }
+                        if (env->type.type != T_boo)
+                        {
+                            fprintf(stderr, "la condition du if n'est pas un boolean\n");
+                            return 1;
+                        }
+                        $$ = Nalloc(); $$->codop = If; $$->FG = $2; NOE noeVide = Nalloc(); noeVide->FG = $4; noeVide->FD = $6; $$->FD = noeVide;
+                    }
+  | Et Af E {
+                ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+                ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+                if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
+                    return 1;
+                $$ = Nalloc(); $$->codop = Af; $$->FG = $1; $$->FD = $3;
+            }
+  | V Af E {
+            ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+            ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+            if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
+                return 1;
+            $$ = Nalloc(); $$->codop = Af; $$->FG = $1; $$->FD = $3; 
+           }
   ;
 L_args: %empty {$$ = NULL;}
     | L_argsnn {$$ = $1;}
     ;
-L_argsnn: E {$$ = $1;}
-    | E ',' L_argsnn {$$ = $1; $$->FG = $3;}
+L_argsnn: E {$$ = $1; }
+    | E ',' L_argsnn {$$ = $1; $$->FG = $3; printf("test: %s et %d\n", $1->ETIQ, $1->codop); printf("test2 : %s et %d \n", $3->ETIQ, $3->codop);}
     ;
 L_argt: %empty {$$ = bilenv_vide();}
     | L_argtnn {$$ = $1;}
@@ -253,9 +330,11 @@ int verification_appel_fonction (LFON fonction, NOE args)
         envFonction = envFonction->SUIV;
     }
     int erreur = 0;
+    //ecrire_env(envFonction);
     while (noeudArg != NULL && envFonction != NULL)
     {
         ENV envNoeudArg = existe(noeudArg, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+        //ecrire_env(envNoeudArg);
         if (envNoeudArg == NULL)
         {   
             erreur = 2;
@@ -264,13 +343,24 @@ int verification_appel_fonction (LFON fonction, NOE args)
         }
         if (compare_type(envNoeudArg->type, envFonction->type) != 1)
         {
-            fprintf(stderr, "%s n'est pas du bon type, dans l'appel de la fonction %s\n", noeudArg->ETIQ, fonction->ID);
+            //fprintf(stderr, "%s n'est pas du bon type, dans l'appel de la fonction %s\n", noeudArg->ETIQ, fonction->ID);
             erreur = 1;
             retour = 1;
             break;
         }
         noeudArg = noeudArg->FG;
         envFonction = envFonction->SUIV;
+        if (noeudArg == NULL)
+        {
+            printf("neud nul\n");
+        }
+        else
+            //printf("caca: %s es %d: \n", noeudArg->ETIQ, noeudArg->codop);
+        if (envFonction == NULL)
+            printf("env nul\n");
+        printf("fonctpion: \n");
+        //ecrire_env(envFonction);
+        printf("args: \n");
     }
     if (erreur != 1)
     {
@@ -328,7 +418,7 @@ void renvoyer_erreur(char* nom, int erreur)
         fprintf(stderr, "le type de retour est mauvais");
         
     fprintf(stderr, "\n");
-    afficherLigne();
+    
 }
 int yyerror(char *s)
 {
@@ -344,6 +434,7 @@ int main(int argn, char** argv)
     ListeVariablesLOCALES = bilenv_vide();
     ListeFonctionsGLOBALES = bilfon_vide();
     estDansFonction = false;
-    yyparse();
+    if (yyparse() == 1)
+        afficherLigne();
     return 0;
 }
