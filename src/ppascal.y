@@ -13,6 +13,7 @@
 
     void renvoyer_erreur(char* nom, int erreur);
     int verification_type_et_existence(char* nom1, char* nom2,ENV env1, ENV env2);
+    int verification_appel_fonction (LFON fonction, NOE args);
     extern  void setEnv(EnvGlobal env);
 %}
 
@@ -31,7 +32,7 @@
 %type <fonctionOuProcedure> LD
 %type <envG> MP
 %type <varG> L_argt L_argtnn L_vart L_vartnn
-%type <noe> C E Et Ca L_args L_argsnn TP V
+%type <noe> C E Et Ca L_args L_argsnn TP V NPro NFon
 %type <env> Argt
 %type <fon> D_entp D_entf D
 %left Se
@@ -45,7 +46,7 @@ MP: L_vart LD C  {  printf("t_int : %d t_boo : %d et t_ar: %d\n",T_int, T_boo, T
                     $$->listeDesFonctionsOuProcedure = $2;
                     $$->corpsGlobale = $3;
                     //interpreteur($$);
-                    ecrire_prog($$->variablesGlobales, $$->listeDesFonctionsOuProcedure, $$->corpsGlobale);
+                    //ecrire_prog($$->variablesGlobales, $$->listeDesFonctionsOuProcedure, $$->corpsGlobale);
                 }
     ;
 E: E Pl E   {
@@ -147,14 +148,36 @@ E: E Pl E   {
             }
     | '(' E ')' {
                     ENV env = existe($2, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
-                    
+                    if (env == NULL)
+                    {
+                        renvoyer_erreur($2->ETIQ, NON_DEFINIE);
+                        return 1;
+                    }                    
                     $$ = $2;
                 }
     | I {$$ = Nalloc(); $$->codop = I; $$->ETIQ = yylval.nom[1];}
-    | V {$$ = $1;}
+    | V {
+            ENV env = existe($1, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+            if (env == NULL)
+            {
+                renvoyer_erreur($1->ETIQ, NON_DEFINIE);
+                return 1;
+            }
+            $$ = $1;
+        }
     | true {$$ = Nalloc(); $$->codop = T_boo; $$->ETIQ = "true";}
     | false {$$ = Nalloc(); $$->codop = T_boo; $$->ETIQ = "false";}
-    | V '(' L_args ')' { $$ = $1; $$->FG = $3; $$->FD = NULL;}
+    | V '(' L_args ')' {
+                            LFON fonction = rechercher_lfon($1->ETIQ,ListeFonctionsGLOBALES.debut);
+                            if (fonction == NULL)
+                            {
+                                renvoyer_erreur($1->ETIQ, NON_DEFINIE);
+                                return 1;
+                            }
+                            if (verification_appel_fonction(fonction, $3) != 0)
+                                return 1;
+                            $$ = Nalloc(); $$->codop = NFon; $$->ETIQ = $1->ETIQ; $$->FG = $3; $$->FD = NULL;
+                       }
     | NewAr TP '[' E ']' {$$ = Nalloc(); $$->codop = NewAr; $$->FG = $2; $$->FD = $4;}
     | Et {$$ = $1;}
     ;
@@ -164,11 +187,11 @@ Et: V '[' E ']' {NOE v = Nalloc(); v->codop = V; v->ETIQ = $1->ETIQ; $$ = Nalloc
 C: C Se C {$$ = Nalloc(); $$->FG = $1; $$->codop = Se; $$->FD = $3;}
     | Sk {$$ = Nalloc(); $$->codop = Sk;}
     | '{' C '}' {$$ = $2;}
-    | V '(' L_args ')' { $$ = $1; $$->FG = $3; $$->FD = NULL;}
+    | V '(' L_args ')' {$$ = Nalloc(); $$->codop = NFon; $$->ETIQ = $1->ETIQ; $$->FG = $3; $$->FD = NULL;}
     | Ca {$$ = $1;}
     ;
 
-Ca: Wh E Do Ca {$$ = Nalloc(); $$->codop = Wh; $$->FG = $2; $$->FD = $4;}
+Ca: Wh E Do C {$$ = Nalloc(); $$->codop = Wh; $$->FG = $2; $$->FD = $4;}
   | If E Th C El Ca {$$ = Nalloc(); $$->codop = If; $$->FG = $2; NOE noeVide = Nalloc(); noeVide->FG = $4; noeVide->FD = $6; $$->FD = noeVide;}
   | Et Af E {$$ = Nalloc(); $$->codop = Af; $$->FG = $1; $$->FD = $3;}
   | V Af E {$$ = Nalloc(); $$->codop = Af; $$->FG = $1; $$->FD = $3; }
@@ -185,7 +208,7 @@ L_argt: %empty {$$ = bilenv_vide();}
 L_argtnn: Argt {$$ = creer_bilenv($1);}
     | L_argtnn ',' Argt {$$ = concat($1, creer_bilenv($3)); }
     ;
-Argt: V ':' TP {$$ = Envalloc(); $$->ID = $1->ETIQ; $$->type = renvoie_type_avec_un_noeud($3);}
+Argt: V ':' TP {$$ = Envalloc(); $$->ID = $1->ETIQ; $$->type = renvoie_type_avec_un_noeudVariable($3);}
     ;
 TP: T_boo {$$ = Nalloc(); $$->codop = T_boo;}
     | T_int {$$ = Nalloc(); $$->codop = T_int;}
@@ -202,26 +225,71 @@ L_vart: %empty {$$ = bilenv_vide();}
 L_vartnn: Var Argt {$$ = creer_bilenv($2);}
     | L_vartnn ',' Var Argt {$$ = concat($1, creer_bilenv($4)); }
     ;
-D_entp: Dep NPro '(' L_argt ')' {$$ = Lfonalloc(); $$->ID = yylval.nom[0]; $$->PARAM = $4; ListeVariablesLOCALES = copier_bilenv($4); estDansFonction = true;}
+D_entp: Dep NPro '(' L_argt ')' {$$ = Lfonalloc(); $$->ID = $2->ETIQ; $$->PARAM = $4; ListeVariablesLOCALES = copier_bilenv($4); estDansFonction = true; ListeFonctionsGLOBALES = concatfn(ListeFonctionsGLOBALES, creer_bilfon($$));}
     ;
-D_entf: Def NFon '(' L_argt ')' ':' TP {$$ = Lfonalloc(); $$->ID = yylval.nom[0]; ENV e = Envalloc(); e->ID = NULL; e->type = renvoie_type_avec_un_noeud($7); $$->PARAM = concat(creer_bilenv(e), $4); ListeVariablesLOCALES = copier_bilenv($4); estDansFonction = true;}
+D_entf: Def NFon '(' L_argt ')' ':' TP {$$ = Lfonalloc(); $$->ID = $2->ETIQ; ENV e = Envalloc(); e->ID = NULL; e->type = renvoie_type_avec_un_noeudVariable($7); $$->PARAM = concat(creer_bilenv(e), $4); ListeVariablesLOCALES = copier_bilenv($4); estDansFonction = true; ListeFonctionsGLOBALES = concatfn(ListeFonctionsGLOBALES, creer_bilfon($$));}
     ;
 D: D_entp L_vart C {$$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3;estDansFonction = false; ListeVariablesLOCALES = bilenv_vide();}
     | D_entf L_vart C {$$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3; estDansFonction = false; ListeVariablesLOCALES = bilenv_vide();}
     ;
 LD: %empty {$$ = bilfon_vide();}
-    | LD D {$$ = concatfn($1, creer_bilfon($2)); ListeFonctionsGLOBALES = $$;}
+    | LD D {$$ = concatfn($1, creer_bilfon($2));}
     ;
 
 
 %%
-int verfication_existence (ENV env)
+int verification_appel_fonction (LFON fonction, NOE args)
 {
-    
+    if (fonction == NULL)
+    {
+        return -1;
+    }
+    int retour = 0;
+    NOE noeudArg = args;
+    ENV envFonction = fonction->PARAM.debut;
+    if (envFonction != NULL && envFonction->ID == NULL)     //si c'est une fonction le premier arg est le type de retour
+    {
+        envFonction = envFonction->SUIV;
+    }
+    int erreur = 0;
+    while (noeudArg != NULL && envFonction != NULL)
+    {
+        ENV envNoeudArg = existe(noeudArg, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+        if (envNoeudArg == NULL)
+        {   
+            erreur = 2;
+            retour = 1;
+            break;
+        }
+        if (compare_type(envNoeudArg->type, envFonction->type) != 1)
+        {
+            fprintf(stderr, "%s n'est pas du bon type, dans l'appel de la fonction %s\n", noeudArg->ETIQ, fonction->ID);
+            erreur = 1;
+            retour = 1;
+            break;
+        }
+        noeudArg = noeudArg->FG;
+        envFonction = envFonction->SUIV;
+    }
+    if (erreur != 1)
+    {
+        if (noeudArg != NULL || envFonction != NULL)
+        {
+            fprintf(stderr, "l'appel de %s ne contient pas le bon nombre d'arguments\n", fonction->ID);
+            retour = 1;
+        }
+        else if (erreur == 2)
+        {
+            if (noeudArg != NULL)
+                renvoyer_erreur(noeudArg->ETIQ, NON_DEFINIE);
+                
+        }
+    }
+    return retour;
 }
+
 int verification_type_et_existence(char* nom1, char* nom2,ENV env1, ENV env2)
 {
-    printf("test\n");
     int retour = 1;
     if (env1 == NULL || env2 == NULL)
     {
@@ -272,6 +340,7 @@ int yywrap()
 int main(int argn, char** argv)
 {
     ListeVariablesLOCALES = bilenv_vide();
+    ListeFonctionsGLOBALES = bilfon_vide();
     estDansFonction = false;
     yyparse();
     return 0;
