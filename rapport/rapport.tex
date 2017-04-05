@@ -66,10 +66,28 @@ Nous avons implémenté une structure de noeud comportant les champs codop (Code
 (respectivement fils gauche et fils droit). Dans notre grammaire les commandes et expressions sont de type noeud ce qui nous permet de construire l'arbre du programme.
 
 Nous disposons également de notre propre structure \textit{EnvG} qui regroupe la totalité du programme lu via un \textit{BILENV} stockant les variables globales, un noeud 
-racine comportant tout le programme principal (sans les déclarations de fonctions auxiliaires), et une liste \textit{BILFON} répertoriant les déclarations de fonctions.
+racine comportant tout le programme principal (sans les déclarations de fonctions auxiliaires) et une liste \textit{BILFON} répertoriant les déclarations de fonctions. 
 Le non-terminal MP est de type \textit{EnvG}, l'interpréteur (ou le traducteur) à alors accès à tous les éléments composant un programme.
 
 \subsection{Problèmes rencontrés et solutions}
+\subsubsection {Pour l'analyseur syntaxique}
+Le premier problème était, les conflits générés par la grammaire; nous les avons régler un par un en analysant le bison avec la commande JESAISPASDEDEDEDEDED , mais pour pouvoir un conflit dans C avec Se, nous avons du changer C et rajouter dans la grammaire Ca: 
+
+C: C Se C
+	| Sk
+	|'{' C '}'
+	| V '(' L_args ')'
+	| Ca
+Ca: Wh E Do C
+	| If E Th C El Ca
+	| Et Af E
+	| V Af E
+
+Le second problème était de récupérer le nom des variables, donc pour ça nous avons d'abord essayer en rajoutant simplement, dans l'union yylval, un char* nom, mais n'étant pas la bonne solution car en construisant l'arbre avec bison, yylval.nom n'avait pas la bonne valeur au bon moment. Donc pour solutionner ce problème nous avons rendu V terminal, pour ça nous avons rajouté yylval.noeud; et c'est dans le flex, au moment de lire une variable, que nous créons un nouveau noeud et que nous mettons dans yylval.noeud.
+
+Le dernier problème, qui était sans doute le plus petit, était de savoir, dans le flex, si on a une variable, une fonction ou une procedure; donc pour ça nous avons ajouté une variable dans le flex que nous modifions au moment de lire \textit{defun} ou \textit{defpro}.
+\subsubsection {Pour l'analyseur sémantique}
+
 
 \section{Phase de test}
 
