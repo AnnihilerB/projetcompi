@@ -1,4 +1,4 @@
-\documentclass[10pt,a4paper]{article}
+﻿\documentclass[10pt,a4paper]{article}
 \usepackage{listings}
 \usepackage[utf8]{inputenc}
 \usepackage{color}
@@ -75,22 +75,30 @@ Après cette vérification, nous vérifions que les types sont cohérents, pour 
 
 \subsection{Problèmes rencontrés et solutions}
 \subsubsection {Pour l'analyseur syntaxique}
-Le premier problème était, les conflits générés par la grammaire; nous les avons régler un par un en analysant le bison avec la commande JESAISPASDEDEDEDEDED , mais pour pouvoir un conflit dans C avec Se, nous avons du changer C et rajouter dans la grammaire Ca: 
-
+Le premier problème était, les conflits générés par la grammaire; nous les avons régler un par un en analysant le bison avec la commande JESAISPASDEDEDEDEDED , mais pour pouvoir un conflit dans C avec Se, nous avons du changer C et rajouter dans la grammaire Ca:\newline 
 C: C Se C
+
 	| Sk
+    
 	|'{' C '}'
-	| V '(' L_args ')'
-	| Ca
+    
+	| V '(' L\_args ')'
+    
+	| Ca\newline\newline
 Ca: Wh E Do C
+
 	| If E Th C El Ca
+    
 	| Et Af E
+    
 	| V Af E
 
 Le second problème était de récupérer le nom des variables, donc pour ça nous avons d'abord essayer en rajoutant simplement, dans l'union yylval, un char* nom, mais n'étant pas la bonne solution car en construisant l'arbre avec bison, yylval.nom n'avait pas la bonne valeur au bon moment. Donc pour solutionner ce problème nous avons rendu V terminal, pour ça nous avons rajouté yylval.noeud; et c'est dans le flex, au moment de lire une variable, que nous créons un nouveau noeud et que nous mettons dans yylval.noeud.
 
 Le dernier problème, qui était sans doute le plus petit, était de savoir, dans le flex, si on a une variable, une fonction ou une procedure; donc pour ça nous avons ajouté une variable dans le flex que nous modifions au moment de lire \textit{defun} ou \textit{defpro}.
 \subsubsection {Pour l'analyseur sémantique}
+-tableau\newline
+-le retour des fonctions\newline
 
 
 \section{Phase de test}
