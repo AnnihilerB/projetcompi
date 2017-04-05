@@ -8,6 +8,7 @@
     BILENV ListeVariablesGLOBALES;
     BILFON ListeFonctionsGLOBALES;
     BILENV ListeVariablesLOCALES;
+    char* fonctionActuel;       //dans quelle fonction se passe le code
     enum erreurs {NON_DEFINIE = 1, MAUVAIS_TYPE, MAUVAIS_TYPE_RETOUR, TYPES_DIFFERENT};
     int estDansFonction;
 
@@ -269,8 +270,38 @@ Ca: Wh E Do C {
   | V Af E {
             ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
             ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
-            if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
-                return 1;
+            if (fonctionActuel != NULL)
+            {
+                if (strcmp($1->ETIQ, fonctionActuel) != 0)
+                {
+                    if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
+                        return 1;
+                }
+                else
+                {
+                    //comme on est dans le return, on vérifie qu'on retourne bien le bon type
+                    LFON fonction = rechercher_lfon(fonctionActuel, ListeFonctionsGLOBALES.debut);
+                    Type t = renvoie_type_fonction(fonction);
+                    if (t.type == 0)    //procédure
+                    {
+                        fprintf(stderr, "%s est un procedure, n'a donc pas de valeur de retour", fonctionActuel);
+                        return 1;
+                    }
+                    else if (env2 == NULL)
+                    {
+                        renvoyer_erreur($3->ETIQ, NON_DEFINIE);
+                        return 1;
+                    }
+                    else if (compare_type(t, env2->type) != 1)
+                    {
+                        fprintf(stderr, "la fonction %s ne renvoie pas le bon type\n", fonctionActuel, env2->ID);
+                        return 1;
+                    }
+                }
+            }
+            else if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
+                    return 1;
+            
             $$ = Nalloc(); $$->codop = Af; $$->FG = $1; $$->FD = $3; 
            }
   ;
@@ -303,12 +334,12 @@ L_vart: %empty {$$ = bilenv_vide();}
 L_vartnn: Var Argt {$$ = creer_bilenv($2);}
     | L_vartnn ',' Var Argt {$$ = concat($1, creer_bilenv($4)); }
     ;
-D_entp: Dep NPro '(' L_argt ')' {$$ = Lfonalloc(); $$->ID = $2->ETIQ; $$->PARAM = $4; ListeVariablesLOCALES = copier_bilenv($4); estDansFonction = true; ListeFonctionsGLOBALES = concatfn(ListeFonctionsGLOBALES, creer_bilfon($$));}
+D_entp: Dep NPro '(' L_argt ')' {$$ = Lfonalloc(); $$->ID = $2->ETIQ; $$->PARAM = $4; ListeVariablesLOCALES = copier_bilenv($4); estDansFonction = true; ListeFonctionsGLOBALES = concatfn(ListeFonctionsGLOBALES, creer_bilfon($$)); fonctionActuel = $$->ID;}
     ;
-D_entf: Def NFon '(' L_argt ')' ':' TP {$$ = Lfonalloc(); $$->ID = $2->ETIQ; ENV e = Envalloc(); e->ID = NULL; e->type = renvoie_type_avec_un_noeudVariable($7); $$->PARAM = concat(creer_bilenv(e), $4); ListeVariablesLOCALES = copier_bilenv($4); estDansFonction = true; ListeFonctionsGLOBALES = concatfn(ListeFonctionsGLOBALES, creer_bilfon($$));}
+D_entf: Def NFon '(' L_argt ')' ':' TP {$$ = Lfonalloc(); $$->ID = $2->ETIQ; ENV e = Envalloc(); e->ID = NULL; e->type = renvoie_type_avec_un_noeudVariable($7); $$->PARAM = concat(creer_bilenv(e), $4); ListeVariablesLOCALES = copier_bilenv($4); estDansFonction = true; ListeFonctionsGLOBALES = concatfn(ListeFonctionsGLOBALES, creer_bilfon($$)); fonctionActuel = $$->ID;}
     ;
-D: D_entp L_vart C {$$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3;estDansFonction = false; ListeVariablesLOCALES = bilenv_vide();}
-    | D_entf L_vart C {$$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3; estDansFonction = false; ListeVariablesLOCALES = bilenv_vide();}
+D: D_entp L_vart C {$$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3;estDansFonction = false; ListeVariablesLOCALES = bilenv_vide(); fonctionActuel = NULL;}
+    | D_entf L_vart C {$$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3; estDansFonction = false; ListeVariablesLOCALES = bilenv_vide(); fonctionActuel = NULL;}
     ;
 LD: %empty {$$ = bilfon_vide();}
     | LD D {$$ = concatfn($1, creer_bilfon($2));}
@@ -431,6 +462,7 @@ int yywrap()
 }
 int main(int argn, char** argv)
 {
+    fonctionActuel = NULL;
     ListeVariablesLOCALES = bilenv_vide();
     ListeFonctionsGLOBALES = bilfon_vide();
     estDansFonction = false;
