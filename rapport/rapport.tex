@@ -16,14 +16,59 @@
 \newpage
 \section{Introduction}
 
-\section{Cahier des charges}
+Le but de ce projet est de manipuler la théorie des langages via les outils Bison et Flex sur le langage Pseudo-Pascal.
+Ce langage est assez complet puisqu'il gère le typage des variables (booléen et entier), les tableaux, les appels de fonctions ainsi que la portée des variables.
+Nous avons pour cela à réaliser les programmes suivant :\\ 
+\begin{itemize}
+    \item Un interpréteur de Pseudo-Pascal.
+    \item Un traducteur de Pseudo-Pascal vers C3A (code à 3 adresses).
+    \item Un interpréteur de C3A.
+\end{itemize}
 
+\section{Cahier des charges}
+\subsection{Besoins fonctionnels}
+
+\begin{itemize}
+    \item Prendre en entrée un programme Pseudo-Pascal au format .pp.
+    \item Vérifier que le programme est correct syntaxiquement et sémantiquement.
+    \item Interpréter ce programme pour en dégager le résultat.
+    \item Traduire le programme en C3A.
+    \item Interpréter ce programme C3A.
+\end{itemize}
+
+\subsection{Besoins non foncitonnels}
+
+\begin{itemize}
+    \item Indication sur les erreurs commises par l'utilisateur lors de l'écriture du programme Pseudo-Pascal.
+    \item Traduction du programme relativement rapide.\\
+\end{itemize}
+
+Nous ne traiterons pas les options demandées c'est-à-dire le passage au langage assembleur Y86 et le ramasse-miettes.
+Nous avons fait le choix de nous concentrer sur les fonctionnalités principales afin de les implémenter de la meilleure manière possible.
 
 \subsection{Architecture}
+Nous avons découpés notre travail de façon à créer plusieurs modules qui peuvent être assemblés par la suite.\\
+
+\begin{itemize}
+    \item Les fichiers .y et .l permettent la lecture du programme d'entrée et l'analyse syntaxique.
+    \item Le module d'analyse sémantique se trouve dans les fichiers analyseur.c/.h
+    \item L'interpréteur se trouve dans le fichier interpreteur.c
+\end{itemize}
+
 
 
 \section{Implémentation}
 \subsection{Description globale}
+Pour analyser et par la suite interpréter notre programme nous nous sommes reposer sur la lecture faite par Bison.
+Bison pouvant générer un arbre du programme lu via sa grammaire, nous pouvons par la suite lire cet arbre par un parcours préfixe et donc l'interpréter.
+
+Nous avons implémenté une structure de noeud comportant les champs codop (Code de l'opération en cours), \textit{ETIQ} (Nom de variable, valeur, etc..), \textit{FG}, \textit{FD} 
+(respectivement fils gauche et fils droit). Dans notre grammaire les commandes et expressions sont de type noeud ce qui nous permet de construire l'arbre du programme.
+
+Nous disposons également de notre propre structure \textit{EnvG} qui regroupe la totalité du programme lu via un \textit{BILENV} stockant les variables globales, un noeud 
+racine comportant tout le programme principal (sans les déclarations de fonctions auxiliaires), et une liste \textit{BILFON} répertoriant les déclarations de fonctions.
+Le non-terminal MP est de type \textit{EnvG}, l'interpréteur (ou le traducteur) à alors accès à tous les éléments composant un programme.
+
 \subsection{Problèmes rencontrés et solutions}
 
 \section{Phase de test}
