@@ -69,6 +69,10 @@ Nous disposons également de notre propre structure \textit{EnvG} qui regroupe l
 racine comportant tout le programme principal (sans les déclarations de fonctions auxiliaires) et une liste \textit{BILFON} répertoriant les déclarations de fonctions. 
 Le non-terminal MP est de type \textit{EnvG}, l'interpréteur (ou le traducteur) à alors accès à tous les éléments composant un programme.
 
+\subsection{Description de l'analyseur sémantique}
+Tout d'abord pour chaque utilisation d'une variable, nous regardons si elle est définie. Pour ça, nous recherchons dans \textit{ListeVariablesLOCALES} puis dans \textit{ListeVariablesGLOBALES}. Nous remplissons \textit{ListeVariablesLocales} à chaque fois fois qu'il y a une définition de fonction pour y mettre dedans les paramètres de la fonction; puis nous rajoutons à la liste les variables déclarées dans la fonction.
+Après cette vérification, nous vérifions que les types sont cohérents, pour les affectations, les appels de fonctions, les opérations ...Et nous finissons par afficher le message adéquat et la ligne.
+
 \subsection{Problèmes rencontrés et solutions}
 \subsubsection {Pour l'analyseur syntaxique}
 Le premier problème était, les conflits générés par la grammaire; nous les avons régler un par un en analysant le bison avec la commande JESAISPASDEDEDEDEDED , mais pour pouvoir un conflit dans C avec Se, nous avons du changer C et rajouter dans la grammaire Ca: 

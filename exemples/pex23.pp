@@ -1,4 +1,4 @@
-/* pex23.pp: test de detection d'erreurs semantiques */
+
 
 var X1 : integer,
 var X2 : integer,
