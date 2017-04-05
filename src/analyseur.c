@@ -99,10 +99,12 @@ ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariablesGlobale, BILE
         }
         else        //variable "classique"
         {
-            nomENV = noeud->ETIQ;            
+            nomENV = noeud->ETIQ; 
+            ecrire_bilenv(listeVariablesLocales);
             envTrouve = rechercher_env(nomENV, listeVariablesLocales.debut);
             if (envTrouve == NULL)
                 envTrouve = rechercher_env(nomENV, listeVariablesGlobale.debut);
+            printf("cac: %d et %d \n", envTrouve->type.type, T_int);
         }
         
         

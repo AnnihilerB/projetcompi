@@ -42,7 +42,7 @@ extern LFON  Lfonalloc();    /* retourne un LFON                             */
 /*---------------------parcours d'arbres-------------------------------------*/
 extern void prefix(NOE n);   /* ecrit l'expression n en notation prefixe     */
 /*---------------------environnements----------------------------------------*/
-extern ENV creer_env(char *etiq, int val);/*pointe vers cette var            */
+extern ENV creer_env(char *etiq, int val, Type t);/*pointe vers cette var            */
 extern ENV copier_env(ENV  env); /*pointe vers une copie                     */
 extern char *nomop(int codop);/* traduit entier vers chaine (= nom operation)*/
 /* retourne la position de chaine (rho_lc est prioritaire) */

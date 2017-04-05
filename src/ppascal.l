@@ -8,6 +8,7 @@
     #include "ppascal.tab.h"
     enum {declareVariable, declareFonction, declareProcedure};
     int declare = declareVariable;
+    int nbLigne = 1;
 %}
 
 %%
@@ -34,7 +35,7 @@ or {return Or;}
 
 \) {return ')';}
 \( {return '(';}
-\n {;}
+\n {nbLigne ++;}
 
 true {return true;}
 false {return false;}
@@ -87,3 +88,8 @@ array" "of {return T_ar;}
 }
 
 %%
+
+void afficherLigne()
+{
+    fprintf(stderr, "ligne : %d\n", nbLigne);
+}
