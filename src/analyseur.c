@@ -18,7 +18,7 @@ Type renvoie_type_fonction (LFON fonctionOuProcedure)
         t = fonctionOuProcedure->PARAM.debut->type;
     return t;
 }
-Type renvoie_type_avec_un_noeud(NOE n)
+Type renvoie_type_avec_un_noeudVariable(NOE n)
 {
     int dimension = 0;
     NOE w = n;
@@ -99,11 +99,12 @@ ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariablesGlobale, BILE
         }
         else        //variable "classique"
         {
-            nomENV = noeud->ETIQ;            
+            nomENV = noeud->ETIQ; 
+            ecrire_bilenv(listeVariablesLocales);
             envTrouve = rechercher_env(nomENV, listeVariablesLocales.debut);
             if (envTrouve == NULL)
                 envTrouve = rechercher_env(nomENV, listeVariablesGlobale.debut);
-            
+            printf("cac: %d et %d \n", envTrouve->type.type, T_int);
         }
         
         
@@ -124,8 +125,12 @@ ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariablesGlobale, BILE
     {
         envTrouve = Envalloc();
         envTrouve->type.dim = 0;
-        if (noeud->codop == true || noeud->codop == false)
+        if (noeud->codop == T_boo || noeud->codop == Not || noeud->codop == And || noeud->codop == Or || noeud->codop == Eq)
+        {
             envTrouve->type.type = T_boo;
+            
+        printf("codop: %d et etiq: %s\n", noeud->codop, noeud->ETIQ);
+        }
         else
             envTrouve->type.type = T_int;
         

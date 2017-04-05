@@ -8,6 +8,7 @@
     #include "ppascal.tab.h"
     enum {declareVariable, declareFonction, declareProcedure};
     int declare = declareVariable;
+    int nbLigne = 1;
 %}
 
 %%
@@ -34,7 +35,7 @@ or {return Or;}
 
 \) {return ')';}
 \( {return '(';}
-\n {;}
+\n {nbLigne ++;}
 
 true {return true;}
 false {return false;}
@@ -54,23 +55,41 @@ array" "of {return T_ar;}
 [A-Za-z]+|[A-Za-z]+[0-9]+ {
     NOE v = Nalloc(); 
     v->codop = V;
-    //printf("YYTEXT : %s\n", yytext);
     v->ETIQ = strdup(yytext); 
     yylval.noe = v;
-    //printf("Pares création : %s\n", yylval.noe->ETIQ);
 
     if (declare == declareVariable)
+    {
+        NOE v = Nalloc(); 
+        v->codop = V;
+        v->ETIQ = strdup(yytext); 
+        yylval.noe = v;
         return V;
+    }
     else if (declare == declareFonction)
     {
+        NOE v = Nalloc(); 
+        v->codop = NFon;
+        v->ETIQ = strdup(yytext); 
+        yylval.noe = v;
         declare = declareVariable;
         return NFon;
     }
     else if (declare == declareProcedure)
     {
+        NOE v = Nalloc(); 
+        v->codop = NPro;
+        v->ETIQ = strdup(yytext); 
+        yylval.noe = v;
+        declare = declareVariable;
         declare = declareVariable;
         return NPro;
     }
 }
 
 %%
+
+void afficherLigne()
+{
+    fprintf(stderr, "ligne : %d\n", nbLigne);
+}

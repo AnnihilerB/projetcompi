@@ -56,11 +56,12 @@ void prefix(NOE n){
 	}
 }
 
-ENV creer_env(char *etiq, int val){
+ENV creer_env(char *etiq, int val, Type t){
 
 	ENV e = Envalloc();
 	e->ID = etiq;
 	e->VAL = val;
+        e->type = t;
     e->SUIV = NULL;
 	return e;
 }
@@ -70,7 +71,7 @@ ENV copier_env(ENV  env){
     ENV e = NULL;
 
     if(env !=NULL){
-        e = creer_env(env->ID, env->VAL);
+        e = creer_env(env->ID, env->VAL, env->type);
         e->SUIV= copier_env(env->SUIV);
     }
 	
@@ -137,7 +138,9 @@ void inbilenv(BILENV *prho,char *var){
     ENV pos = rech(var, env);
 
 	if(pos == NULL){
-        ENV new = creer_env(var, 0);
+        Type t;
+        t.type = t.dim = 0;
+        ENV new = creer_env(var, 0, t);
         new->SUIV=env;
 		prho->debut = new;
     }
