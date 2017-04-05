@@ -3,6 +3,19 @@
 #include "analyseur.h"
 #include "ppascal.tab.h"
 
+void ecrire_type(Type t)
+{
+    printf("dimension: %d et type: ", t.dim);
+    if (t.type == T_ar)
+        printf("T_ar ");
+    else if (t.type == T_boo)
+        printf("T_boo ");
+    else if (t.type == T_int)
+        printf("T_int ");
+    else 
+        printf("erreur ");
+    printf("\n");
+}
 EnvGlobal creer_environnementGlobal()
 {
     EnvGlobal g = malloc(sizeof(EnvGlobal));
@@ -21,6 +34,10 @@ Type renvoie_type_fonction (LFON fonctionOuProcedure)
 Type renvoie_type_avec_un_noeudVariable(NOE n)
 {
     int dimension = 0;
+    if (n->codop == NewAr)
+    {
+        dimension = -1;
+    }
     NOE w = n;
     while (w->FG != NULL)
     {
@@ -44,7 +61,7 @@ int compare_type(Type t1, Type t2)
 
 ENV rechercher_env (char* nom, ENV env)
 {
-    ENV w = env;
+    ENV w = copier_env(env);
     while (w != NULL)
     {
         if (strcmp(nom, w->ID) == 0)
@@ -92,9 +109,15 @@ ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariablesGlobale, BILE
             envTrouve = rechercher_env(nomENV, listeVariablesLocales.debut);
             if (envTrouve == NULL && (envTrouve = rechercher_env(nomENV, listeVariablesGlobale.debut)) == NULL)
                 return NULL;
+            printf("%s: \n", noeud->ETIQ);ecrire_type(envTrouve->type);
+            Type t = renvoie_type_avec_un_noeudVariable(noeud);
+            printf("%s ici: \n", noeud->ETIQ); ecrire_type(t);
+            /*
             if (envTrouve->type.dim != trouver_dimension_type_noeud(noeud))     //si son type la dimension de la variable n'est pas égale à la dimension déclaré, alors on dit que la variable a pour type T_ar et donc il a un mauvais type
                 envTrouve->type.type = T_ar;
-            envTrouve->type.dim = 0;
+            
+            envTrouve->type.dim = 0;*/
+            envTrouve->type.dim -= t.dim;
             
         }
         else        //variable "classique"
@@ -119,15 +142,19 @@ ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariablesGlobale, BILE
             envTrouve->type = renvoie_type_fonction(lfonTrouvee);
         }
     }
+    else if (noeud->codop == NewAr)
+    {
+        envTrouve = Envalloc();
+        envTrouve->type = renvoie_type_avec_un_noeudVariable(noeud);
+    }
     else
     {
         envTrouve = Envalloc();
         envTrouve->type.dim = 0;
-        if (noeud->codop == T_boo || noeud->codop == Not || noeud->codop == And || noeud->codop == Or || noeud->codop == Eq)
+        if (noeud->codop == T_boo || noeud->codop == Not || noeud->codop == And || noeud->codop == Or || noeud->codop == Eq || noeud->codop == Lt)
             envTrouve->type.type = T_boo;
         else
             envTrouve->type.type = T_int;
-        
     }
     return envTrouve;
 }

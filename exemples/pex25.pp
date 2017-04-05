@@ -1,5 +1,3 @@
-/* pex25.pp */
-
 var X1 : boolean,
 var X2 : integer,
 var AA : array of array of integer
@@ -26,3 +24,4 @@ X2 := foo2();
 AA := new array of integer [X2];
 X1 := not X1;
 X2 := 10
+

@@ -167,7 +167,7 @@ E: E Pl E   {
             }
             $$ = $1;
         }
-    | true {printf("true\n");$$ = Nalloc(); $$->codop = T_boo; $$->ETIQ = "true";}
+    | true {$$ = Nalloc(); $$->codop = T_boo; $$->ETIQ = "true";}
     | false {$$ = Nalloc(); $$->codop = T_boo; $$->ETIQ = "false";}
     | V '(' L_args ')' {
                             LFON fonction = rechercher_lfon($1->ETIQ,ListeFonctionsGLOBALES.debut);
@@ -179,6 +179,7 @@ E: E Pl E   {
                             if (verification_appel_fonction(fonction, $3) != 0)
                                 return 1;
                             $$ = Nalloc(); $$->codop = NFon; $$->ETIQ = $1->ETIQ; $$->FG = $3; $$->FD = NULL;
+                            
                        }
     | NewAr TP '[' E ']' {
                             ENV env = existe($4, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
@@ -232,7 +233,7 @@ C: C Se C {$$ = Nalloc(); $$->FG = $1; $$->codop = Se; $$->FD = $3;}
     | Ca {$$ = $1;}
     ;
 
-Ca: Wh E Do C {
+Ca: Wh E Do Ca {
                 ENV env = existe($2, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
                 if (env == NULL)
                 {
@@ -246,6 +247,8 @@ Ca: Wh E Do C {
                 }
                 $$ = Nalloc(); $$->codop = Wh; $$->FG = $2; $$->FD = $4;
               }
+  | '{' C '}' {$$ = $2;}
+  | Sk {$$ = Nalloc(); $$->codop = Sk;}
   | If E Th C El Ca {
                         ENV env = existe($2, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
                         if (env == NULL)
@@ -264,7 +267,12 @@ Ca: Wh E Do C {
                 ENV env1 = existe($1, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
                 ENV env2 = existe($3, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
                 if (verification_type_et_existence($1->ETIQ,$3->ETIQ,env1, env2) != 0)
+                {
+                    printf("test: ");
+                    ecrire_type(env1->type);
+                    ecrire_type(env2->type);
                     return 1;
+                }
                 $$ = Nalloc(); $$->codop = Af; $$->FG = $1; $$->FD = $3;
             }
   | V Af E {
@@ -308,8 +316,8 @@ Ca: Wh E Do C {
 L_args: %empty {$$ = NULL;}
     | L_argsnn {$$ = $1;}
     ;
-L_argsnn: E {$$ = $1; }
-    | E ',' L_argsnn {$$ = $1; $$->FG = $3; printf("test: %s et %d\n", $1->ETIQ, $1->codop); printf("test2 : %s et %d \n", $3->ETIQ, $3->codop);}
+L_argsnn: E {$$ = Nalloc(); $$->FD = $1; }
+    | E ',' L_argsnn {$$ = Nalloc(); $$->FD = $1; $$->FG = $3;}
     ;
 L_argt: %empty {$$ = bilenv_vide();}
     | L_argtnn {$$ = $1;}
@@ -362,9 +370,10 @@ int verification_appel_fonction (LFON fonction, NOE args)
     }
     int erreur = 0;
     //ecrire_env(envFonction);
+    int numArg = 1;
     while (noeudArg != NULL && envFonction != NULL)
     {
-        ENV envNoeudArg = existe(noeudArg, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
+        ENV envNoeudArg = existe(noeudArg->FD, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
         //ecrire_env(envNoeudArg);
         if (envNoeudArg == NULL)
         {   
@@ -374,24 +383,14 @@ int verification_appel_fonction (LFON fonction, NOE args)
         }
         if (compare_type(envNoeudArg->type, envFonction->type) != 1)
         {
-            //fprintf(stderr, "%s n'est pas du bon type, dans l'appel de la fonction %s\n", noeudArg->ETIQ, fonction->ID);
+            fprintf(stderr, "l'argument %d n'est pas du bon type, dans l'appel de la fonction %s\n", numArg, fonction->ID);
             erreur = 1;
             retour = 1;
             break;
         }
         noeudArg = noeudArg->FG;
         envFonction = envFonction->SUIV;
-        if (noeudArg == NULL)
-        {
-            printf("neud nul\n");
-        }
-        else
-            //printf("caca: %s es %d: \n", noeudArg->ETIQ, noeudArg->codop);
-        if (envFonction == NULL)
-            printf("env nul\n");
-        printf("fonctpion: \n");
-        //ecrire_env(envFonction);
-        printf("args: \n");
+        numArg ++;
     }
     if (erreur != 1)
     {
@@ -403,7 +402,7 @@ int verification_appel_fonction (LFON fonction, NOE args)
         else if (erreur == 2)
         {
             if (noeudArg != NULL)
-                renvoyer_erreur(noeudArg->ETIQ, NON_DEFINIE);
+                renvoyer_erreur(noeudArg->FD->ETIQ, NON_DEFINIE);
                 
         }
     }
