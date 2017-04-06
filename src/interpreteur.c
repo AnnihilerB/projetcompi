@@ -1,14 +1,17 @@
 #include "util.h"
 #include "analyseur.h"
 #include "ppascal.tab.h"
+#include "tableau.h"
 #include <string.h>
 #include <stdio.h>
 
-EnvGlobal envG;
-ENV varEnv;
-LFON fonctionCourante;
-BILENV paramFonctions;
-int dansFonction = 0;
+EnvGlobal envG; // Environnement du programme -> Var globale, listes des fonctions, coprs du programme principal.
+ENV varEnv; //Env stockant la variable courante.
+LFON fonctionCourante; //Fonction à éxecuter si appel de fonctions.
+BILENV paramFonctions; //Paramètre d'un appel de fonctions interprétés.
+int dansFonction = 0; //Indicateur dans fonction.
+
+
 
 void interpreteur(EnvGlobal env){
   envG = env;
@@ -23,8 +26,8 @@ void interp_args(NOE fonction, BILENV param, BILENV *paramFonctions){
   varEnv->ID = Idalloc();
   varEnv->SUIV = NULL;
 
-  while(paramFormel != NULL){ //Dans le cas d'une fonction le premier paramètre est null.
-    if (paramFormel->ID != NULL){
+  while(paramFormel != NULL){ 
+    if (paramFormel->ID != NULL){ //Dans le cas d'une fonction le premier paramètre est null.
       int res = interp_rec(paramAppel->FD); //Résultat de l'interprétation du fils droit -> appel du paramètre.
 
       ENV p = Envalloc(); //Env stockant la valeur de l'interprétation du fils droit
@@ -50,7 +53,9 @@ void interp_args(NOE fonction, BILENV param, BILENV *paramFonctions){
 }
 
 int interp_rec(NOE corps){
+  printf("codop : %d\n", corps->codop);
   switch (corps->codop){
+    /* ---------- Cas de base (minimaux) ---------- */
     case T_boo:
       if (strcmp(corps->ETIQ, "true") == 0)
         return 1; //True
@@ -64,19 +69,33 @@ int interp_rec(NOE corps){
           //Variable non trouvé dans param ou locales donc recheche globale.
           varEnv = rech2(corps->ETIQ, envG->variablesGlobales.debut, envG->variablesGlobales.debut);
         }
+        if (varEnv == NULL){
+          //Variable pas présente du tout donc valeur de retour.
+          printf("COUROU\n");
+          varEnv = Envalloc();
+          varEnv->ID = Idalloc();
+          varEnv->ID = corps->ETIQ;
+          printf("COUROU\n");
+        }
       }
       else{
-        //Hors fonction
+        //Hors fonction ou a
         varEnv = rech2(corps->ETIQ, envG->variablesGlobales.debut, envG->variablesGlobales.debut);
       }
+      printf("env : %s\n", varEnv->ID);
       return varEnv->VAL;
       break;
+    case NewAr:
+      break;
+
+    /* ---------- Cas composés ---------- */
     case NPro: case NFon:
       dansFonction = 1; // Indicateur de rentrée dans fonction
       fonctionCourante = rechercher_lfon(corps->ETIQ, envG->listeDesFonctionsOuProcedure.debut); //Recherche le LFON de la fonction courante.
       interp_args(corps, fonctionCourante->PARAM, &paramFonctions); //Interprétation de la liste des args lors de l'appel.
       interp_rec(fonctionCourante->CORPS); //Interprétation de la fonction
       dansFonction = 0; //Sortie de fonction.
+      return varEnv->VAL;
       break;
     case Af:
       if (corps->FG->codop == V){
@@ -111,8 +130,7 @@ int interp_rec(NOE corps){
       else
         interp_rec(corps->FD->FD);
       return 0;
-  }
-  
+  }  
 }
 
 int evaluation(int op, int a, int b){
@@ -139,5 +157,3 @@ int evaluation(int op, int a, int b){
       return a == b;
   }
 }
-
-
