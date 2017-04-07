@@ -25,8 +25,6 @@ extern QUAD rechbq(char *chaine, BILQUAD bq);/*ret le quad etiquete par chaine
 */
 extern BILQUAD concatq(BILQUAD bq1, BILQUAD bq2);/* retourne la concatenation    
 */
-extern char *nomop(int codop); /* traduit entier vers chaine (= nom operation)    
-*/
 extern void ecrire_quad(QUAD qd); /* affiche le quadruplet                       
 */
 extern void ecrire_bilquad(BILQUAD bq); /* affiche la biliste de quadruplets     

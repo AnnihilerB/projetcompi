@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "traducteurC3A.h"
+#include "bilquad.h"
 #include "ppascal.tab.h"
 
 char* getStringInstruction(int c)
@@ -44,9 +45,39 @@ char* getStringInstruction(int c)
 }
 void traduire_ppascal_vers_C3A(EnvGlobal programme)
 {
-    
+    ListeFonctionsTraduites liste_fonctionsTraduites = ListeFonctionsTraduites_vide();
+    traduire_toutes_les_fonctions(programme.listeDesFonctionsOuProcedure, &liste_fonctionsTraduites);
 }
-void ecrire_parametre_fonction(BILENV param_envoye, BILENV param_fonction, int numEtiquette)  //les param_envoyé sont toujours déjà des valeurs, et les param_fonction sont bons (on y a enlevé, le premier si c'est une fonction)
+BILQUAD traduire_corps(char* nomFonctionActuel, NOE corps)
+{
+}
+BILQUAD traduire_fonction(ListeFonctionsTraduites* liste, LFON fonction)
+{
+}
+BILQUAD traduire_toutes_les_fonctions(BILFON fonctions, ListeFonctionsTraduites* listeFonctions)
 {
     
+}
+ListeFonctionsTraduites ListeFonctionsTraduites_vide()
+{
+    ListeFonctionsTraduites l;
+    l.debut = l.fin = NULL;
+    return l;
+}
+void ajouter_ListeFonctionsTraduites (ListeFonctionsTraduites* liste, FonTraduite ftrad)
+{
+    if (ftrad != NULL)
+    {
+        if (liste->debut == NULL)
+            liste->debut = liste->fin = ftrad;
+        else
+        {
+            liste->fin->SUIV = ftrad;
+            ftrad->SUIV = NULL;
+            liste->fin = ftrad; 
+        }
+    }
+}
+void liberer_ListeFonctionstraduites (ListeFonctionsTraduites liste)
+{
 }
