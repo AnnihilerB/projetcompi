@@ -15,7 +15,6 @@
     void renvoyer_erreur(char* nom, int erreur);
     int verification_type_et_existence(char* nom1, char* nom2,ENV env1, ENV env2);
     int verification_appel_fonction (LFON fonction, NOE args);
-    extern  void setEnv(EnvGlobal env);
     int numeroLigne = 0;
 %}
 
@@ -44,11 +43,12 @@
 //TODO: vérification de type
 MP: L_vart LD C  {  printf("t_int : %d t_boo : %d et t_ar: %d et Nfon: %d\n",T_int, T_boo, T_ar, NFon);
                     $$=creer_environnementGlobal();
-                    $$->variablesGlobales = $1;
-                    $$->listeDesFonctionsOuProcedure = $2;
-                    $$->corpsGlobale = $3;
-                    //interpreteur($$);
-                    //ecrire_prog($$->variablesGlobales, $$->listeDesFonctionsOuProcedure, $$->corpsGlobale);
+                    $$.variablesGlobales = $1;
+                    $$.listeDesFonctionsOuProcedure = $2;
+                    $$.corpsGlobale = $3;
+                    printf("INTERP\n");
+                    interpreteur($$);
+                    ecrire_prog($$.variablesGlobales, $$.listeDesFonctionsOuProcedure, $$.corpsGlobale);
                 }
     ;
 E: E Pl E   {

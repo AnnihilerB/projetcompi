@@ -19,10 +19,10 @@ void ecrire_type(Type t)
 }
 EnvGlobal creer_environnementGlobal()
 {
-    EnvGlobal g = malloc(sizeof(EnvGlobal));
-    g->corpsGlobale = NULL;
-    g->variablesGlobales = bilenv_vide();
-    g->listeDesFonctionsOuProcedure = bilfon_vide();
+    EnvGlobal g;
+    g.corpsGlobale = NULL;
+    g.variablesGlobales = bilenv_vide();
+    g.listeDesFonctionsOuProcedure = bilfon_vide();
     return g;
 }
 
