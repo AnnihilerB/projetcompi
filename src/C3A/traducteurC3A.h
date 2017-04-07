@@ -3,7 +3,7 @@
 #include "analyseur.h"
 #include "environ.h"
 #include "bilquad.h"
-enum {PL = 300, MO, MU, AND, OR, NOT, AF, AFC, AFIND, SK, JP, JZ, ST, PARAM, CALL, RET};
+enum {PL = 300, MO, MU, AND, OR, LT, IND, NOT, AF, AFC, AFIND, SK, JP, JZ, ST, PARAM, CALL, RET};
 
 
 typedef struct fonctionTraduite {
