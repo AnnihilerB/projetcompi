@@ -12,7 +12,7 @@
 %}
 
 %%
-[0-9]|[1-9][0-9]+ {yylval.nom[1] = strdup(yytext);return I;}
+\-[0-9]|\-[1-9][0-9]+|[0-9]|[1-9][0-9]+ {yylval.nom[1] = strdup(yytext);return I;}
 := {return Af;}
 = {return Eq;}
 skip {return Sk;}
