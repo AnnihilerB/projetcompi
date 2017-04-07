@@ -21,10 +21,14 @@ void ajouter_ListeFonctionsTraduites (ListeFonctionsTraduites* liste, FonTraduit
 void liberer_ListeFonctionstraduites (ListeFonctionsTraduites liste);
 
 char* getStringInstruction(int c);
+char* intToChar(int c);
+char* etiquette(char* n, int c);
+char* CT(int c);
+char* Va(int c);
+int charToInt (char* n);
 void traduire_ppascal_vers_C3A(EnvGlobal programme);
 BILQUAD traduire_toutes_les_fonctions(BILFON fonctions, ListeFonctionsTraduites* listeFonctions);
 BILQUAD traduire_fonction(ListeFonctionsTraduites* liste, LFON fonction);
-BILQUAD traduire_corps(char* nomFonctionActuel, NOE corps);//nomFonctionActuel: donne le nom de la fonction, d'où vient le corps, si NULL alors c'est que le corps est hors d'une fonction
-
+BILQUAD traduire_corps(NOE corps, char* etiq, int* numEtiquette);
 
 #endif
