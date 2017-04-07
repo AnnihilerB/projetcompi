@@ -54,32 +54,26 @@ array" "of {return T_ar;}
 
 [A-Za-z]+|[A-Za-z]+[0-9]+ {
     NOE v = Nalloc(); 
-    v->codop = V;
-    v->ETIQ = strdup(yytext); 
+    v->ETIQ = Idalloc();
+    strcpy(v->ETIQ,yytext); 
     yylval.noe = v;
 
     if (declare == declareVariable)
     {
-        NOE v = Nalloc(); 
         v->codop = V;
-        v->ETIQ = strdup(yytext); 
         yylval.noe = v;
         return V;
     }
     else if (declare == declareFonction)
     {
-        NOE v = Nalloc(); 
         v->codop = NFon;
-        v->ETIQ = strdup(yytext); 
         yylval.noe = v;
         declare = declareVariable;
         return NFon;
     }
     else if (declare == declareProcedure)
     {
-        NOE v = Nalloc(); 
         v->codop = NPro;
-        v->ETIQ = strdup(yytext); 
         yylval.noe = v;
         declare = declareVariable;
         declare = declareVariable;

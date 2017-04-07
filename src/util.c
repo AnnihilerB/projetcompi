@@ -57,19 +57,18 @@ void prefix(NOE n){
 }
 
 ENV creer_env(char *etiq, int val, Type t){
-
 	ENV e = Envalloc();
-	e->ID = etiq;
+    e->ID = Idalloc();
+    if (e->ID != NULL && etiq != NULL)
+        strcpy(e->ID, etiq);
 	e->VAL = val;
-        e->type = t;
+    e->type = t;
     e->SUIV = NULL;
 	return e;
 }
 
 ENV copier_env(ENV  env){
-
     ENV e = NULL;
-
     if(env !=NULL){
         e = creer_env(env->ID, env->VAL, env->type);
         e->SUIV= copier_env(env->SUIV);

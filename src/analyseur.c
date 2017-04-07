@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "analyseur.h"
+#include "util.h"
 #include "ppascal.tab.h"
 
 void ecrire_type(Type t)
@@ -20,6 +21,8 @@ EnvGlobal creer_environnementGlobal()
 {
     EnvGlobal g = malloc(sizeof(EnvGlobal));
     g->corpsGlobale = NULL;
+    g->variablesGlobales = bilenv_vide();
+    g->listeDesFonctionsOuProcedure = bilfon_vide();
     return g;
 }
 
@@ -64,7 +67,7 @@ ENV rechercher_env (char* nom, ENV env)
     ENV w = copier_env(env);
     while (w != NULL)
     {
-        if (strcmp(nom, w->ID) == 0)
+        if (nom != NULL && w->ID != NULL && strcmp(nom, w->ID) == 0)
             return w;
         w = w->SUIV;
     }
@@ -104,6 +107,7 @@ ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariablesGlobale, BILE
     {
         if (noeud->FG != NULL && noeud->FD != NULL) //c'est un tableau
         {
+            printf("test\n");
             nomENV = noeud->ETIQ;
             
             envTrouve = rechercher_env(nomENV, listeVariablesLocales.debut);
@@ -112,11 +116,6 @@ ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariablesGlobale, BILE
             printf("%s: \n", noeud->ETIQ);ecrire_type(envTrouve->type);
             Type t = renvoie_type_avec_un_noeudVariable(noeud);
             printf("%s ici: \n", noeud->ETIQ); ecrire_type(t);
-            /*
-            if (envTrouve->type.dim != trouver_dimension_type_noeud(noeud))     //si son type la dimension de la variable n'est pas égale à la dimension déclaré, alors on dit que la variable a pour type T_ar et donc il a un mauvais type
-                envTrouve->type.type = T_ar;
-            
-            envTrouve->type.dim = 0;*/
             envTrouve->type.dim -= t.dim;
             
         }
