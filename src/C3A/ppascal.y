@@ -229,7 +229,18 @@ Et: V '[' E ']' {
 C: C Se C {$$ = Nalloc(); $$->FG = $1; $$->codop = Se; $$->FD = $3;}
     | Sk {$$ = Nalloc(); $$->codop = Sk;}
     | '{' C '}' {$$ = $2;}
-    | V '(' L_args ')' {$$ = Nalloc(); $$->codop = NFon; $$->ETIQ = $1->ETIQ; $$->FG = $3; $$->FD = NULL;}
+    | V '(' L_args ')'  {
+                            LFON fonction = rechercher_lfon($1->ETIQ,ListeFonctionsGLOBALES.debut);
+                            if (fonction == NULL)
+                            {
+                                renvoyer_erreur($1->ETIQ, NON_DEFINIE);
+                                return 1;
+                            }
+                            if (verification_appel_fonction(fonction, $3) != 0)
+                                return 1;
+                            $$ = Nalloc(); $$->codop = NFon; $$->ETIQ = $1->ETIQ; $$->FG = $3; $$->FD = NULL;
+    
+                        }
     | Ca {$$ = $1;}
     ;
 
@@ -467,5 +478,9 @@ int main(int argn, char** argv)
     estDansFonction = false;
     if (yyparse() == 1)
         afficherLigne();
+    else
+    {
+        traduire_ppascal_vers_C3A(yylval.envG);
+    }
     return 0;
 }
