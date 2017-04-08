@@ -5,7 +5,7 @@
 #include "ppascal.tab.h"
 
 int cptNomC3A;
-int estAGaucheAffectation;
+int LireTableau;
 EnvGlobal envG;
 char* intToChar(int c){
     char* nom = malloc(7);
@@ -70,7 +70,7 @@ void traduire_ppascal_vers_C3A(EnvGlobal programme)
     ET = "ET";
     cptNomC3A = 0;
     ecrire_bilquad(traduire_corps(programme.corpsGlobale, ET));
-    //ecrire_bilquad(traduire_toutes_les_fonctions(programme->listeDesFonctionsOuProcedure));
+    ecrire_bilquad(traduire_toutes_les_fonctions(programme.listeDesFonctionsOuProcedure));
     
 }
 BILQUAD traduire_appel_fonction (NOE noeud, BILFON listeFonctions, char* etiq)
@@ -98,7 +98,7 @@ BILQUAD traduire_appel_fonction (NOE noeud, BILFON listeFonctions, char* etiq)
     }
     int tmp = cptNomC3A;
     cptNomC3A += 1;
-    b = concatq(b, creer_bilquad(creer_quad(etiquette(etiq, tmp), CALL, etiquette(fonctionTrouvee->ID, 0), intToChar(nbArgs), NULL)));
+    b = concatq(b, creer_bilquad(creer_quad(etiquette(etiq, tmp), CALL, etiquette(fonctionTrouvee->ID, -1), intToChar(nbArgs), NULL)));
     return b;
     
 }
@@ -133,18 +133,18 @@ BILQUAD recursif_lecture_tableau(NOE noeud, char* etiq)
         BILQUAD fd = traduire_corps(noeud->FD, etiq);
         int tmp = cptNomC3A;
         cptNomC3A += 1;
-        BILQUAD fg = creer_bilquad(creer_quad(etiquette(etiq, tmp), AFIND, noeud->FG->ETIQ, fd.fin->RES, VA(cptNomC3A)));
+        BILQUAD fg = creer_bilquad(creer_quad(etiquette(etiq, tmp), IND, noeud->FG->ETIQ, fd.fin->RES, VA(cptNomC3A)));
         cptNomC3A += 1;
         return concatq(fd, fg);
     }
     else
     {
-        BILQUAD filsG = recursif_ecriture_tableau(noeud->FG, etiq);
+        BILQUAD filsG = recursif_lecture_tableau(noeud->FG, etiq);
         int tmp = cptNomC3A;
         cptNomC3A += 1;
         BILQUAD filsD = traduire_corps(noeud->FD,etiq);
         cptNomC3A += 1;
-        BILQUAD b = creer_bilquad(creer_quad(etiquette(etiq, tmp), AFIND, filsG.fin->RES, filsD.fin->RES, VA(cptNomC3A)));
+        BILQUAD b = creer_bilquad(creer_quad(etiquette(etiq, tmp), IND, filsG.fin->RES, filsD.fin->RES, VA(cptNomC3A)));
         return concatq(concatq(filsG,filsD), b);
     }
 }
@@ -176,7 +176,7 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
     else if (corps->codop == V)
     {
         if (corps->FG == NULL && corps->FD == NULL)
-        {            
+        {
             //ecrire bilquad variable
             b = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), SK, NULL,NULL, corps->ETIQ));
             cptNomC3A += 1;
@@ -184,14 +184,10 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
         else 
         {
             //tableau
-            if (estAGaucheAffectation == 1)
-            {
-                //AFIND
-                b = traduire_ecriture_tableau(corps, etiq);
-            }
-            else
+            if (LireTableau == 1)
             {
                 //IND
+                b = traduire_lecture_tableau(corps, etiq);
             }
         }
         
@@ -206,20 +202,45 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
     }
     else if (corps->codop == Af)
     {
+        if (corps->FG->codop == V && corps->FG->FG != NULL && corps->FG->FD != NULL)   //AfInd
+        {
+            int tmp = cptNomC3A;
+            cptNomC3A += 1;
+            BILQUAD filsD = traduire_corps(corps->FD, etiq);
+            cptNomC3A += 1;
+            BILQUAD af = traduire_ecriture_tableau(corps->FG, etiq);
+            strcpy(af.fin->RES, filsD.fin->RES);
+            b = concatq(filsD, af);
+        }
+        else
+        {
+            LireTableau = 1;
+            int tmp = cptNomC3A;
+            cptNomC3A += 1;
+            LireTableau = 1;
+            BILQUAD filsD = traduire_corps(corps->FD, etiq);
+            LireTableau = 0;
+            cptNomC3A += 1;
+            BILQUAD filsG = traduire_corps(corps->FG, etiq);
+            cptNomC3A += 1;
+            BILQUAD af = creer_bilquad(creer_quad(etiquette(etiq, tmp), AF, filsG.fin->RES, filsD.fin->RES, NULL));
+            b = concatq(concatq(filsD,filsG), af);
+            LireTableau = 0;
+        }
+        
+    }
+    else if (corps->codop == NewAr)
+    {
         int tmp = cptNomC3A;
         cptNomC3A += 1;
-        estAGaucheAffectation = 0;
-        BILQUAD filsD = traduire_corps(corps->FD, etiq);
-        estAGaucheAffectation = 1;
+        BILQUAD f = traduire_corps(corps->FD, etiq);
         cptNomC3A += 1;
-        BILQUAD filsG = traduire_corps(corps->FG, etiq);
-        cptNomC3A += 1;
-        BILQUAD af = creer_bilquad(creer_quad(etiquette(etiq, tmp), AF, filsG.fin->RES, filsD.fin->RES, NULL));
-        b = concatq(concatq(filsD,filsG), af);
-        
+        BILQUAD bb = creer_bilquad(creer_quad(etiquette(etiq, tmp), AFIND, corps->ETIQ, corps->ETIQ, VA(cptNomC3A)));
+        b = concatq(f, bb);
     }
     else if (corps->codop != Not && corps->codop >= Pl && corps->codop <= Eq)  //Pl,Mo,Mu,And,Or,Lt,Eq
     {
+        LireTableau = 1;
         int op;
         switch(corps->codop)
         {
@@ -241,6 +262,7 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
         BILQUAD pere = creer_bilquad(creer_quad(etiquette(etiq, tmp), op, fg.fin->RES, fd.fin->RES, VA(cptNomC3A)));
         
         b = concatq(fils, pere);
+        LireTableau = 0;
     }
     else if (corps->codop == Not)
     {
@@ -291,7 +313,11 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
 BILQUAD traduire_fonction(LFON fonction)
 {
     cptNomC3A = 0;
-    return traduire_corps(fonction->CORPS, fonction->ID);
+    BILQUAD b =  traduire_corps(fonction->CORPS, fonction->ID);
+    cptNomC3A += 1;
+    BILQUAD ret = creer_bilquad(creer_quad(etiquette(fonction->ID, cptNomC3A), RET, NULL,NULL,NULL));
+    
+    return concatq(creer_bilquad(creer_quad(etiquette(fonction->ID, -1), NULL,NULL,NULL,NULL)),concatq(b,ret));
 }
 BILQUAD traduire_toutes_les_fonctions(BILFON fonctions)
 {
@@ -307,7 +333,10 @@ BILQUAD traduire_toutes_les_fonctions(BILFON fonctions)
 
 char* etiquette(char* n, int c){
     char *nom = Idalloc();
-    sprintf(nom, "%s%d",n, c);
+    if (c >= 0)
+        sprintf(nom, "%s%d",n, c);
+    else 
+        sprintf(nom, "%s",n);
     return nom;
 }
 char* CT(int c){

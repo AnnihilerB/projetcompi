@@ -101,8 +101,12 @@ char *nomop(int codop)
             return "Not";
         case EQ:
             return "Eq";
+        case LT:
+            return "Lt";
         case AFIND:
             return "AfInd";
+        case IND:
+            return "Ind";
         case PARAM:
             return "Param";
         case CALL:

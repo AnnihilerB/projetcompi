@@ -111,14 +111,7 @@ ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariablesGlobale, BILE
             envTrouve = rechercher_env(nomENV, listeVariablesLocales.debut);
             if (envTrouve == NULL && (envTrouve = rechercher_env(nomENV, listeVariablesGlobale.debut)) == NULL)
                 return NULL;
-            printf("%s: \n", noeud->ETIQ);ecrire_type(envTrouve->type);
             Type t = renvoie_type_avec_un_noeudVariable(noeud);
-            printf("%s ici: \n", noeud->ETIQ); ecrire_type(t);
-            /*
-            if (envTrouve->type.dim != trouver_dimension_type_noeud(noeud))     //si son type la dimension de la variable n'est pas égale à la dimension déclaré, alors on dit que la variable a pour type T_ar et donc il a un mauvais type
-                envTrouve->type.type = T_ar;
-            
-            envTrouve->type.dim = 0;*/
             envTrouve->type.dim -= t.dim;
             
         }
