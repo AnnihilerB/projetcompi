@@ -18,5 +18,5 @@ BILQUAD traduire_toutes_les_fonctions(BILFON fonctions);
 BILQUAD traduire_fonction(LFON fonction);
 BILQUAD traduire_corps(NOE corps, char* etiq);
 BILQUAD traduire_appel_fonction (NOE noeud, BILFON listeFonctions, char* etiq);
-
+BILQUAD traduire_ecriture_tableau (NOE noeud, char* etiq);
 #endif

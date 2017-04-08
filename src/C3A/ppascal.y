@@ -223,7 +223,7 @@ Et: V '[' E ']' {
                             fprintf(stderr,"l'indice ou la taille d'un tableau doit être un int\n");
                             return 1;
                         }
-                            $$ = Nalloc() ;$$->FG = $1; $$->FD = $3; $$->ETIQ = $1->ETIQ;
+                            $$ = Nalloc() ;$$->FG = $1; $$->FD = $3; $$->ETIQ = $1->ETIQ; $$->codop = V;
                     }
     ;
 C: C Se C {$$ = Nalloc(); $$->FG = $1; $$->codop = Se; $$->FD = $3;}

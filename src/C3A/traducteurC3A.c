@@ -5,6 +5,7 @@
 #include "ppascal.tab.h"
 
 int cptNomC3A;
+int estAGaucheAffectation;
 EnvGlobal envG;
 char* intToChar(int c){
     char* nom = malloc(7);
@@ -17,6 +18,7 @@ int charToInt (char* n)
     if (n != NULL && n[0] == '-')
     {
         v = atoi(&n[1]);
+        return -v;
     }
     else
         v = atoi(n);
@@ -100,6 +102,33 @@ BILQUAD traduire_appel_fonction (NOE noeud, BILFON listeFonctions, char* etiq)
     return b;
     
 }
+BILQUAD recursif_ecriture_tableau (NOE noeud, char* etiq)
+{
+    if (noeud->FG->FG == NULL)
+    {
+        cptNomC3A += 1;
+        BILQUAD fd = traduire_corps(noeud->FD, etiq);
+        int tmp = cptNomC3A;
+        cptNomC3A += 1;
+        BILQUAD fg = creer_bilquad(creer_quad(etiquette(etiq, tmp), AFIND, noeud->FG->ETIQ, fd.fin->RES, VA(cptNomC3A)));
+        cptNomC3A += 1;
+        return concatq(fd, fg);
+    }
+    else
+    {
+        BILQUAD filsG = recursif_ecriture_tableau(noeud->FG, etiq);
+        int tmp = cptNomC3A;
+        cptNomC3A += 1;
+        BILQUAD filsD = traduire_corps(noeud->FD,etiq);
+        cptNomC3A += 1;
+        BILQUAD b = creer_bilquad(creer_quad(etiquette(etiq, tmp), AFIND, filsG.fin->RES, filsD.fin->RES, VA(cptNomC3A)));
+        return concatq(concatq(filsG,filsD), b);
+    }
+}
+BILQUAD traduire_ecriture_tableau (NOE noeud, char* etiq)
+{
+    BILQUAD b = recursif_ecriture_tableau(noeud, etiq);
+}
 BILQUAD traduire_corps(NOE corps, char* etiq)
 {
     BILQUAD b = bilquad_vide();
@@ -128,6 +157,15 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
         else 
         {
             //tableau
+            if (estAGaucheAffectation == 1)
+            {
+                //AFIND
+                b = traduire_ecriture_tableau(corps, etiq);
+            }
+            else
+            {
+                //IND
+            }
         }
         
     }
@@ -143,9 +181,14 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
     {
         int tmp = cptNomC3A;
         cptNomC3A += 1;
-        BILQUAD fils = traduire_corps(corps->FD, etiq);
-        BILQUAD af = creer_bilquad(creer_quad(etiquette(etiq, tmp), AF, corps->FG->ETIQ, fils.fin->RES, NULL));
-        b = concatq(fils,af);
+        estAGaucheAffectation = 0;
+        BILQUAD filsD = traduire_corps(corps->FD, etiq);
+        estAGaucheAffectation = 1;
+        cptNomC3A += 1;
+        BILQUAD filsG = traduire_corps(corps->FG, etiq);
+        cptNomC3A += 1;
+        BILQUAD af = creer_bilquad(creer_quad(etiquette(etiq, tmp), AF, filsG.fin->RES, filsD.fin->RES, NULL));
+        b = concatq(concatq(filsD,filsG), af);
         
     }
     else if (corps->codop != Not && corps->codop >= Pl && corps->codop <= Eq)  //Pl,Mo,Mu,And,Or,Lt,Eq
