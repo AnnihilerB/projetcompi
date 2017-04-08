@@ -41,13 +41,13 @@
 %left Pl Mo Mu And Or Not Lt Eq
 
 %%
-//TODO: vérification de type
 MP: L_vart LD C  {  printf("t_int : %d t_boo : %d et t_ar: %d et Nfon: %d\n",T_int, T_boo, T_ar, NFon);
                     $$=creer_environnementGlobal();
-                    $$->variablesGlobales = $1;
-                    $$->listeDesFonctionsOuProcedure = $2;
-                    $$->corpsGlobale = $3;
+                    $$.variablesGlobales = $1;
+                    $$.listeDesFonctionsOuProcedure = $2;
+                    $$.corpsGlobale = $3;
                     //interpreteur($$);
+                    traduire_ppascal_vers_C3A($$);
                     //ecrire_prog($$->variablesGlobales, $$->listeDesFonctionsOuProcedure, $$->corpsGlobale);
                 }
     ;
@@ -353,12 +353,32 @@ L_vart: %empty {$$ = bilenv_vide();}
 L_vartnn: Var Argt {$$ = creer_bilenv($2);}
     | L_vartnn ',' Var Argt {$$ = concat($1, creer_bilenv($4)); }
     ;
-D_entp: Dep NPro '(' L_argt ')' {$$ = Lfonalloc(); $$->ID = $2->ETIQ; $$->PARAM = $4; ListeVariablesLOCALES = copier_bilenv($4); estDansFonction = true; ListeFonctionsGLOBALES = concatfn(ListeFonctionsGLOBALES, creer_bilfon($$)); fonctionActuel = $$->ID;}
+D_entp: Dep NPro '(' L_argt ')' {
+                                    LFON tmpF = rechercher_lfon($2->ETIQ, ListeFonctionsGLOBALES.debut);
+                                    if (tmpF != NULL)
+                                    {
+                                        fprintf(stderr, "plusieurs fonctions ou procedures portent le même nom: %s\n", $2->ETIQ);
+                                        return 1;
+                                    }
+                                    $$ = Lfonalloc(); $$->ID = $2->ETIQ; $$->PARAM = $4; ListeVariablesLOCALES = copier_bilenv($4); estDansFonction = true; ListeFonctionsGLOBALES = concatfn(ListeFonctionsGLOBALES, creer_bilfon($$)); fonctionActuel = $$->ID;
+                                }
     ;
-D_entf: Def NFon '(' L_argt ')' ':' TP {$$ = Lfonalloc(); $$->ID = $2->ETIQ; ENV e = Envalloc(); e->ID = NULL; e->type = renvoie_type_avec_un_noeudVariable($7); $$->PARAM = concat(creer_bilenv(e), $4); ListeVariablesLOCALES = copier_bilenv($4); estDansFonction = true; ListeFonctionsGLOBALES = concatfn(ListeFonctionsGLOBALES, creer_bilfon($$)); fonctionActuel = $$->ID;}
+D_entf: Def NFon '(' L_argt ')' ':' TP {
+                                            LFON tmpF = rechercher_lfon($2->ETIQ, ListeFonctionsGLOBALES.debut);
+                                            if (tmpF != NULL)
+                                            {
+                                                fprintf(stderr, "plusieurs fonctions ou procedures portent le même nom: %s\n", $2->ETIQ);
+                                                return 1;
+                                            }
+                                            $$ = Lfonalloc(); $$->ID = $2->ETIQ; ENV e = Envalloc(); e->ID = NULL; e->type = renvoie_type_avec_un_noeudVariable($7); $$->PARAM = concat(creer_bilenv(e), $4); ListeVariablesLOCALES = copier_bilenv($4); estDansFonction = true; ListeFonctionsGLOBALES = concatfn(ListeFonctionsGLOBALES, creer_bilfon($$)); fonctionActuel = $$->ID;
+                                       }
     ;
-D: D_entp L_vart C {$$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3;estDansFonction = false; ListeVariablesLOCALES = bilenv_vide(); fonctionActuel = NULL;}
-    | D_entf L_vart C {$$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3; estDansFonction = false; ListeVariablesLOCALES = bilenv_vide(); fonctionActuel = NULL;}
+D: D_entp L_vart C {                        
+                        $$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3;estDansFonction = false; ListeVariablesLOCALES = bilenv_vide(); fonctionActuel = NULL;
+                   }
+    | D_entf L_vart C {
+                            $$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3; estDansFonction = false; ListeVariablesLOCALES = bilenv_vide(); fonctionActuel = NULL;
+                      }
     ;
 LD: %empty {$$ = bilfon_vide();}
     | LD D {$$ = concatfn($1, creer_bilfon($2));}
@@ -478,9 +498,5 @@ int main(int argn, char** argv)
     estDansFonction = false;
     if (yyparse() == 1)
         afficherLigne();
-    else
-    {
-        traduire_ppascal_vers_C3A(yylval.envG);
-    }
     return 0;
 }
