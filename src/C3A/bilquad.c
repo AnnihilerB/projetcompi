@@ -6,6 +6,7 @@
 #include <string.h>
 #include "bilquad.h"
 #include "environ.h"
+#include "traducteurC3A.h"
 /*-------------------------------------------------------------------*/
 /* ----------------------------types---------------------------------*/
 /* QUAD,BILQUAD: definis dans bilquad.h                              */
@@ -82,7 +83,48 @@ BILQUAD concatq(BILQUAD bq1, BILQUAD bq2)
     return(bq2);
 }
 
-
+char *nomop(int codop)
+{
+    switch (codop)
+    {
+        case PL:
+            return "Pl";
+        case MO:
+            return "Mo";
+        case MU:
+            return "Mu";
+        case AND:
+            return "And";
+        case OR:
+            return "Or";
+        case NOT:
+            return "Not";
+        case EQ:
+            return "Eq";
+        case AFIND:
+            return "AfInd";
+        case PARAM:
+            return "Param";
+        case CALL:
+            return "Call";
+        case RET:
+            return "Ret";
+        case AF:
+            return "Af";
+        case AFC:
+            return "Afc";
+        case SK:
+            return "Sk";
+        case JP:
+            return "Jp";
+        case JZ:
+            return "Jz";
+        case ST:
+            return "St";
+        default:
+            return NULL;
+    }
+}
 /* affiche le quadruplet (pour generer code); puis saute a la ligne */
 void ecrire_quad(QUAD qd)
 { if(strcmp(qd->ETIQ,"") == 0)       /* etiquette= mot vide */

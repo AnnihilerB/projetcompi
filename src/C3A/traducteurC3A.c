@@ -4,6 +4,8 @@
 #include "bilquad.h"
 #include "ppascal.tab.h"
 
+int cptNomC3A;
+EnvGlobal envG;
 char* intToChar(int c){
     char* nom = malloc(7);
     sprintf(nom, "%d", c);
@@ -18,6 +20,7 @@ int charToInt (char* n)
     }
     else
         v = atoi(n);
+    return v;
 }
 char* getStringInstruction(int c)
 {
@@ -60,32 +63,67 @@ char* getStringInstruction(int c)
 }
 void traduire_ppascal_vers_C3A(EnvGlobal programme)
 {
-    ListeFonctionsTraduites liste_fonctionsTraduites = ListeFonctionsTraduites_vide();
-    ecrire_bilquad(traduire_toutes_les_fonctions(programme->listeDesFonctionsOuProcedure, &liste_fonctionsTraduites));
+    envG = programme;
+    char* ET = Idalloc();
+    ET = "ET";
+    cptNomC3A = 0;
+    ecrire_bilquad(traduire_corps(programme.corpsGlobale, ET));
+    //ecrire_bilquad(traduire_toutes_les_fonctions(programme->listeDesFonctionsOuProcedure));
     
 }
-BILQUAD traduire_corps(NOE corps, char* etiq, int* numEtiquette)
+BILQUAD traduire_appel_fonction (NOE noeud, BILFON listeFonctions, char* etiq)
+{    
+    cptNomC3A += 1;
+    LFON fonctionTrouvee = rechercher_lfon(noeud->ETIQ, listeFonctions.debut);
+    ENV paramActuel = fonctionTrouvee->PARAM.debut;
+    if (paramActuel->ID == NULL)   //alors on utilise pas le premier argument, car c'est le type de retour
+        paramActuel = paramActuel->SUIV;
+        
+    NOE argsEnvoyee = noeud->FG;
+    BILQUAD b = bilquad_vide();
+    int nbArgs = 0;
+    while (paramActuel != NULL)
+    {
+        cptNomC3A += 1;
+        BILQUAD calculArg = traduire_corps(argsEnvoyee->FD, etiq); 
+        cptNomC3A += 1;
+        BILQUAD instructionParam = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), PARAM, paramActuel->ID, calculArg.fin->RES, NULL));
+        b = concatq(b, concatq(calculArg,instructionParam));
+        argsEnvoyee = argsEnvoyee->FG;
+        paramActuel = paramActuel->SUIV;
+        nbArgs ++;
+        cptNomC3A += 1;
+    }
+    int tmp = cptNomC3A;
+    cptNomC3A += 1;
+    b = concatq(b, creer_bilquad(creer_quad(etiquette(etiq, tmp), CALL, etiquette(fonctionTrouvee->ID, 0), intToChar(nbArgs), NULL)));
+    return b;
+    
+}
+BILQUAD traduire_corps(NOE corps, char* etiq)
 {
+    BILQUAD b = bilquad_vide();
     if (corps->codop == T_boo)
     {
         int val = 1;
         if (strcmp(corps->ETIQ, "false") == 0)
             val = 0;
         //ecrire les bilquad pour une valeur
-        BILQUAD b = creer_bilquad(creer_quad(etiquette(etiq, numEtiquette), AFC, intToChar(val), NULL, CT(numEtiquette +1)));
-        *(numEtiquette) += 2;
+        b = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), AFC, intToChar(val), NULL, CT(cptNomC3A+1)));
+        cptNomC3A += 2;
     }
     else if (corps->codop == I)
     {
-       BILQUAD b = creer_bilquad(creer_quad(etiquette(etiq, numEtiquette), AFC, intToChar(intToChar(corps->ETIQ)), NULL, CT(numEtiquette +1)));
-       *(numEtiquette) += 2;
-        //ecrire les bilquad pour une valeur
+        b = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), AFC, corps->ETIQ, NULL, CT(cptNomC3A +1)));
+            cptNomC3A += 2;
     }
     else if (corps->codop == V)
     {
         if (corps->FG == NULL && corps->FD == NULL)
-        {
+        {            
             //ecrire bilquad variable
+            b = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), SK, NULL,NULL, corps->ETIQ));
+            cptNomC3A += 1;
         }
         else 
         {
@@ -93,54 +131,112 @@ BILQUAD traduire_corps(NOE corps, char* etiq, int* numEtiquette)
         }
         
     }
+    else if (corps->codop == Se)
+    {
+        b = concatq(traduire_corps(corps->FG, etiq), traduire_corps(corps->FD, etiq));
+    }
     else if (corps->codop == NPro || corps->codop == NFon)
     {
+        b = traduire_appel_fonction(corps, envG.listeDesFonctionsOuProcedure, etiq);
     }
     else if (corps->codop == Af)
     {
+        int tmp = cptNomC3A;
+        cptNomC3A += 1;
+        BILQUAD fils = traduire_corps(corps->FD, etiq);
+        BILQUAD af = creer_bilquad(creer_quad(etiquette(etiq, tmp), AF, corps->FG->ETIQ, fils.fin->RES, NULL));
+        b = concatq(fils,af);
+        
     }
     else if (corps->codop != Not && corps->codop >= Pl && corps->codop <= Eq)  //Pl,Mo,Mu,And,Or,Lt,Eq
     {
+        int op;
+        switch(corps->codop)
+        {
+            case Pl: op = PL; break;
+            case Mo: op = MO; break;
+            case Mu: op = MU; break;
+            case And: op = AND; break;
+            case Or: op = OR; break;
+            case Lt: op = LT; break;
+            case Eq: op = EQ; break;
+        }
+        int tmp = cptNomC3A; //1
+        cptNomC3A += 1;
+        BILQUAD fg = traduire_corps(corps->FG, etiq);
+        cptNomC3A += 1;
+        BILQUAD fd = traduire_corps(corps->FD, etiq);
+        BILQUAD fils = concatq(fg, fd);
+        cptNomC3A += 1;
+        BILQUAD pere = creer_bilquad(creer_quad(etiquette(etiq, tmp), op, fg.fin->RES, fd.fin->RES, VA(cptNomC3A)));
         
+        b = concatq(fils, pere);
     }
     else if (corps->codop == Not)
     {
+        int tmp = cptNomC3A;
+        
+        cptNomC3A += 1;
+        BILQUAD fils = traduire_corps(corps->FD, etiq);
+        cptNomC3A += 1;
+        BILQUAD neg = creer_bilquad(creer_quad(etiquette(etiq, tmp), NOT, corps->ETIQ, NULL, fils.fin->RES));
+        b = concatq(fils, neg);
     }
     else if (corps->codop == Sk)
-    {
+    {        
+        BILQUAD pere = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), SK, NULL,NULL,NULL));
+        cptNomC3A += 1;
+        b = pere;
     }
     else if (corps->codop == Wh)
     {
+        BILQUAD condition = traduire_corps(corps->FG, etiq);
+        BILQUAD filsBoucle = traduire_corps(corps->FD, etiq);
+        BILQUAD jmpFin = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), JP, NULL,NULL,condition.debut->ETIQ));
+        BILQUAD skipFin = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A + 2), SK, NULL,NULL,NULL));
+        BILQUAD boucle = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A + 1), JZ, condition.fin->RES, NULL, skipFin.debut->ETIQ));
+        cptNomC3A += 3;
+        b = concatq(concatq(concatq(concatq(condition, boucle), filsBoucle),jmpFin),skipFin);
     }
     else if (corps->codop == If)
     {
+        int tmp = cptNomC3A;
+        cptNomC3A += 1;
+        BILQUAD condition = traduire_corps(corps->FG, etiq);
+        cptNomC3A += 1;
+        BILQUAD fd = traduire_corps(corps->FD->FG, etiq);
+        cptNomC3A += 1;
+        BILQUAD fg = traduire_corps(corps->FD->FD, etiq);
+        cptNomC3A += 1;
+        BILQUAD finIf = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), SK, NULL,NULL,NULL));
+        cptNomC3A += 1;
+        BILQUAD quadIf = creer_bilquad(creer_quad(etiquette(etiq,cptNomC3A), JZ, condition.fin->RES, NULL, fg.debut->ETIQ));
+        cptNomC3A += 1;
+        BILQUAD quadElse = creer_bilquad(creer_quad(etiquette(etiq,cptNomC3A+2), JP, NULL,NULL,finIf.debut->ETIQ));
+        b = concatq(concatq(concatq(concatq(concatq(condition,quadIf),fd),quadElse),fg),finIf);        
     }
+    return b;
     
 }
-BILQUAD traduire_fonction(ListeFonctionsTraduites* liste, LFON fonction)
+BILQUAD traduire_fonction(LFON fonction)
 {
-    int numEtiquette = 0;
-    return traduire_corps(fonction->CORPS, fonction->ID, &numEtiquette);
+    cptNomC3A = 0;
+    return traduire_corps(fonction->CORPS, fonction->ID);
 }
-BILQUAD traduire_toutes_les_fonctions(BILFON fonctions, ListeFonctionsTraduites* listeFonctions)
+BILQUAD traduire_toutes_les_fonctions(BILFON fonctions)
 {
     BILQUAD bil = bilquad_vide();
     LFON f = fonctions.debut;
     while (f != NULL)
     {
-        bil = concatq(bil,traduire_fonction(listeFonctions, f));
+        bil = concatq(bil,traduire_fonction(f));
         f = f->SUIV;
     }
     return bil;
 }
-ListeFonctionsTraduites ListeFonctionsTraduites_vide()
-{
-    ListeFonctionsTraduites l;
-    l.debut = l.fin = NULL;
-    return l;
-}
+
 char* etiquette(char* n, int c){
-    char *nom = malloc(7);
+    char *nom = Idalloc();
     sprintf(nom, "%s%d",n, c);
     return nom;
 }
@@ -149,25 +245,9 @@ char* CT(int c){
     sprintf(nom, "CT%d", c);
     return nom;
 }
-char* Va(int c){
+char* VA(int c){
     char *nom = malloc(7);
     sprintf(nom, "VA%d", c);
     return nom;
 }
-void ajouter_ListeFonctionsTraduites (ListeFonctionsTraduites* liste, FonTraduite ftrad)
-{
-    if (ftrad != NULL)
-    {
-        if (liste->debut == NULL)
-            liste->debut = liste->fin = ftrad;
-        else
-        {
-            liste->fin->SUIV = ftrad;
-            ftrad->SUIV = NULL;
-            liste->fin = ftrad; 
-        }
-    }
-}
-void liberer_ListeFonctionstraduites (ListeFonctionsTraduites liste)
-{
-}
+
