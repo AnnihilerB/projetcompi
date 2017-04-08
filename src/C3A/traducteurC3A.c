@@ -125,9 +125,36 @@ BILQUAD recursif_ecriture_tableau (NOE noeud, char* etiq)
         return concatq(concatq(filsG,filsD), b);
     }
 }
+BILQUAD recursif_lecture_tableau(NOE noeud, char* etiq)
+{
+    if (noeud->FG->FG == NULL)
+    {
+        cptNomC3A += 1;
+        BILQUAD fd = traduire_corps(noeud->FD, etiq);
+        int tmp = cptNomC3A;
+        cptNomC3A += 1;
+        BILQUAD fg = creer_bilquad(creer_quad(etiquette(etiq, tmp), AFIND, noeud->FG->ETIQ, fd.fin->RES, VA(cptNomC3A)));
+        cptNomC3A += 1;
+        return concatq(fd, fg);
+    }
+    else
+    {
+        BILQUAD filsG = recursif_ecriture_tableau(noeud->FG, etiq);
+        int tmp = cptNomC3A;
+        cptNomC3A += 1;
+        BILQUAD filsD = traduire_corps(noeud->FD,etiq);
+        cptNomC3A += 1;
+        BILQUAD b = creer_bilquad(creer_quad(etiquette(etiq, tmp), AFIND, filsG.fin->RES, filsD.fin->RES, VA(cptNomC3A)));
+        return concatq(concatq(filsG,filsD), b);
+    }
+}
 BILQUAD traduire_ecriture_tableau (NOE noeud, char* etiq)
 {
     BILQUAD b = recursif_ecriture_tableau(noeud, etiq);
+}
+BILQUAD traduire_lecture_tableau (NOE noeud, char* etiq)
+{
+    BILQUAD b = recursif_lecture_tableau(noeud, etiq);
 }
 BILQUAD traduire_corps(NOE corps, char* etiq)
 {
