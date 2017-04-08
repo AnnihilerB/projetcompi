@@ -1,7 +1,6 @@
 #include "util.h"
 #include "analyseur.h"
 #include "ppascal.tab.h"
-#include "tableau.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -9,13 +8,14 @@ EnvGlobal envG; // Environnement du programme -> Var globale, listes des fonctio
 ENV varEnv; //Env stockant la variable courante.
 LFON fonctionCourante; //Fonction à éxecuter si appel de fonctions.
 BILENV paramFonctions; //Paramètre d'un appel de fonctions interprétés.
-int dansFonction = 0; //Indicateur dans fonction.
+int dansFonction = 0; //Indicateur dans fonction
 
+ENV cpy;
 
 
 void interpreteur(EnvGlobal env){
   envG = env;
-  interp_rec(envG->corpsGlobale);
+  interp_rec(envG.corpsGlobale);
 }
 
 void interp_args(NOE fonction, BILENV param, BILENV *paramFonctions){
@@ -61,47 +61,56 @@ int interp_rec(NOE corps){
         return 1; //True
       return 0; // False
     case I:
+      if (corps->ETIQ[0] == '-'){
+        int nb = atoi( (corps->ETIQ) +1 );
+        return -nb;
+      }
       return atoi(corps->ETIQ);
     case V:
       if (dansFonction){ // Dans un appel de fonctions.
         varEnv = rech2(corps->ETIQ, fonctionCourante->VARLOC.debut, paramFonctions.debut); //Priorité de la recherche sur la liste de paramètre.
         if (varEnv == NULL){
           //Variable non trouvé dans param ou locales donc recheche globale.
-          varEnv = rech2(corps->ETIQ, envG->variablesGlobales.debut, envG->variablesGlobales.debut);
+          varEnv = rech2(corps->ETIQ, envG.variablesGlobales.debut, envG.variablesGlobales.debut);
         }
         if (varEnv == NULL){
           //Variable pas présente du tout donc valeur de retour.
           printf("COUROU\n");
           varEnv = Envalloc();
           varEnv->ID = Idalloc();
-          varEnv->ID = corps->ETIQ;
+          strcpy(varEnv->ID, corps->ETIQ);
           printf("COUROU\n");
         }
       }
       else{
         //Hors fonction ou a
-        varEnv = rech2(corps->ETIQ, envG->variablesGlobales.debut, envG->variablesGlobales.debut);
+        varEnv = rech2(corps->ETIQ, envG.variablesGlobales.debut, envG.variablesGlobales.debut);
       }
       printf("env : %s\n", varEnv->ID);
       return varEnv->VAL;
       break;
     case NewAr:
-      break;
+        printf("NewAr : %s, %d\n", corps->ETIQ, corps->codop);
+        printf("NewAr FG : %s, %d\n", corps->FD->ETIQ, corps->FD->codop);
+        printf("NewAr FD: %s, %d\n", corps->FD->ETIQ, corps->FD->codop);
+        break;
 
     /* ---------- Cas composés ---------- */
     case NPro: case NFon:
       dansFonction = 1; // Indicateur de rentrée dans fonction
-      fonctionCourante = rechercher_lfon(corps->ETIQ, envG->listeDesFonctionsOuProcedure.debut); //Recherche le LFON de la fonction courante.
+      fonctionCourante = rechercher_lfon(corps->ETIQ, envG.listeDesFonctionsOuProcedure.debut); //Recherche le LFON de la fonction courante.
       interp_args(corps, fonctionCourante->PARAM, &paramFonctions); //Interprétation de la liste des args lors de l'appel.
       interp_rec(fonctionCourante->CORPS); //Interprétation de la fonction
       dansFonction = 0; //Sortie de fonction.
-      return varEnv->VAL;
+      return varEnv->VAL; //Envoie de la valeur de retour
       break;
     case Af:
       if (corps->FG->codop == V){
         //Variable classique
         interp_rec(corps->FG); //Interp pour stocker dans varEnv l'ENV de la variable.
-        affect(varEnv, varEnv->ID, interp_rec(corps->FD)); 
+        cpy = Envalloc();
+        cpy = varEnv; // Garde une trace de la variable pour éviter réécriture par interp FD.
+        affect(cpy, cpy->ID, interp_rec(corps->FD)); 
         break;
       }
       if (corps->FG->codop == T_ar)
