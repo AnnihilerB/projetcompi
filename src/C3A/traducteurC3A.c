@@ -75,7 +75,6 @@ void traduire_ppascal_vers_C3A(EnvGlobal programme)
 }
 BILQUAD traduire_appel_fonction (NOE noeud, BILFON listeFonctions, char* etiq)
 {    
-    cptNomC3A += 1;
     LFON fonctionTrouvee = rechercher_lfon(noeud->ETIQ, listeFonctions.debut);
     ENV paramActuel = fonctionTrouvee->PARAM.debut;
     if (paramActuel->ID == NULL)   //alors on utilise pas le premier argument, car c'est le type de retour
@@ -94,11 +93,10 @@ BILQUAD traduire_appel_fonction (NOE noeud, BILFON listeFonctions, char* etiq)
         argsEnvoyee = argsEnvoyee->FG;
         paramActuel = paramActuel->SUIV;
         nbArgs ++;
-        cptNomC3A += 1;
     }
     int tmp = cptNomC3A;
     cptNomC3A += 1;
-    b = concatq(b, creer_bilquad(creer_quad(etiquette(etiq, tmp), CALL, etiquette(fonctionTrouvee->ID, -1), intToChar(nbArgs), NULL)));
+    b = concatq(b, creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), CALL, etiquette(fonctionTrouvee->ID, -1), intToChar(nbArgs), NULL)));
     return b;
     
 }
@@ -110,7 +108,7 @@ BILQUAD recursif_ecriture_tableau (NOE noeud, char* etiq)
         BILQUAD fd = traduire_corps(noeud->FD, etiq);
         int tmp = cptNomC3A;
         cptNomC3A += 1;
-        BILQUAD fg = creer_bilquad(creer_quad(etiquette(etiq, tmp), AFIND, noeud->FG->ETIQ, fd.fin->RES, VA(cptNomC3A)));
+        BILQUAD fg = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), AFIND, noeud->FG->ETIQ, fd.fin->RES, VA(cptNomC3A+1)));
         cptNomC3A += 1;
         return concatq(fd, fg);
     }
@@ -121,7 +119,8 @@ BILQUAD recursif_ecriture_tableau (NOE noeud, char* etiq)
         cptNomC3A += 1;
         BILQUAD filsD = traduire_corps(noeud->FD,etiq);
         cptNomC3A += 1;
-        BILQUAD b = creer_bilquad(creer_quad(etiquette(etiq, tmp), AFIND, filsG.fin->RES, filsD.fin->RES, VA(cptNomC3A)));
+        BILQUAD b = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), AFIND, filsG.fin->RES, filsD.fin->RES, VA(cptNomC3A+1)));
+        cptNomC3A += 1;
         return concatq(concatq(filsG,filsD), b);
     }
 }
@@ -133,7 +132,7 @@ BILQUAD recursif_lecture_tableau(NOE noeud, char* etiq)
         BILQUAD fd = traduire_corps(noeud->FD, etiq);
         int tmp = cptNomC3A;
         cptNomC3A += 1;
-        BILQUAD fg = creer_bilquad(creer_quad(etiquette(etiq, tmp), IND, noeud->FG->ETIQ, fd.fin->RES, VA(cptNomC3A)));
+        BILQUAD fg = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), IND, noeud->FG->ETIQ, fd.fin->RES, VA(cptNomC3A+1)));
         cptNomC3A += 1;
         return concatq(fd, fg);
     }
@@ -144,7 +143,8 @@ BILQUAD recursif_lecture_tableau(NOE noeud, char* etiq)
         cptNomC3A += 1;
         BILQUAD filsD = traduire_corps(noeud->FD,etiq);
         cptNomC3A += 1;
-        BILQUAD b = creer_bilquad(creer_quad(etiquette(etiq, tmp), IND, filsG.fin->RES, filsD.fin->RES, VA(cptNomC3A)));
+        BILQUAD b = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), IND, filsG.fin->RES, filsD.fin->RES, VA(cptNomC3A+1)));
+        cptNomC3A += 1;
         return concatq(concatq(filsG,filsD), b);
     }
 }
@@ -179,8 +179,9 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
         if (corps->FG == NULL && corps->FD == NULL)
         {
             //ecrire bilquad variable
-            b = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), SK, NULL,NULL, corps->ETIQ));
             cptNomC3A += 1;
+            b = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), SK, NULL,NULL, corps->ETIQ));
+            
         }
         else 
         {
@@ -224,7 +225,7 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
             cptNomC3A += 1;
             BILQUAD filsG = traduire_corps(corps->FG, etiq);
             cptNomC3A += 1;
-            BILQUAD af = creer_bilquad(creer_quad(etiquette(etiq, tmp), AF, filsG.fin->RES, filsD.fin->RES, NULL));
+            BILQUAD af = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), AF, filsG.fin->RES, filsD.fin->RES, NULL));
             b = concatq(concatq(filsD,filsG), af);
             LireTableau = 0;
         }
@@ -236,7 +237,8 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
         cptNomC3A += 1;
         BILQUAD f = traduire_corps(corps->FD, etiq);
         cptNomC3A += 1;
-        BILQUAD bb = creer_bilquad(creer_quad(etiquette(etiq, tmp), AFIND, corps->ETIQ, corps->ETIQ, VA(cptNomC3A)));
+        BILQUAD bb = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), AFIND, corps->ETIQ, corps->ETIQ, VA(cptNomC3A+1)));
+        cptNomC3A += 1;
         b = concatq(f, bb);
     }
     else if (corps->codop != Not && corps->codop >= Pl && corps->codop <= Eq)  //Pl,Mo,Mu,And,Or,Lt,Eq
@@ -253,15 +255,15 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
             case Lt: op = LT; break;
             case Eq: op = EQ; break;
         }
-        int tmp = cptNomC3A; //1
+        int tmp = cptNomC3A; 
         cptNomC3A += 1;
         BILQUAD fg = traduire_corps(corps->FG, etiq);
         cptNomC3A += 1;
         BILQUAD fd = traduire_corps(corps->FD, etiq);
         BILQUAD fils = concatq(fg, fd);
         cptNomC3A += 1;
-        BILQUAD pere = creer_bilquad(creer_quad(etiquette(etiq, tmp), op, fg.fin->RES, fd.fin->RES, VA(cptNomC3A)));
-        
+        BILQUAD pere = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), op, fg.fin->RES, fd.fin->RES, VA(cptNomC3A+1)));
+        cptNomC3A += 1;
         b = concatq(fils, pere);
         LireTableau = 0;
     }
@@ -272,23 +274,27 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
         cptNomC3A += 1;
         BILQUAD fils = traduire_corps(corps->FD, etiq);
         cptNomC3A += 1;
-        BILQUAD neg = creer_bilquad(creer_quad(etiquette(etiq, tmp), NOT, corps->ETIQ, NULL, fils.fin->RES));
+        BILQUAD neg = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), NOT, corps->ETIQ, NULL, fils.fin->RES));
         b = concatq(fils, neg);
     }
     else if (corps->codop == Sk)
-    {        
-        BILQUAD pere = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), SK, NULL,NULL,NULL));
+    {      
         cptNomC3A += 1;
+        BILQUAD pere = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), SK, NULL,NULL,NULL));        
         b = pere;
     }
     else if (corps->codop == Wh)
     {
+        cptNomC3A += 1;
         BILQUAD condition = traduire_corps(corps->FG, etiq);
+        cptNomC3A += 1;
         BILQUAD filsBoucle = traduire_corps(corps->FD, etiq);
+        cptNomC3A += 1;
         BILQUAD jmpFin = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), JP, NULL,NULL,condition.debut->ETIQ));
-        BILQUAD skipFin = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A + 2), SK, NULL,NULL,NULL));
-        BILQUAD boucle = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A + 1), JZ, condition.fin->RES, NULL, skipFin.debut->ETIQ));
-        cptNomC3A += 3;
+        cptNomC3A += 1;
+        BILQUAD skipFin = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), SK, NULL,NULL,NULL));
+        cptNomC3A += 1;
+        BILQUAD boucle = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), JZ, condition.fin->RES, NULL, skipFin.debut->ETIQ));
         b = concatq(concatq(concatq(concatq(condition, boucle), filsBoucle),jmpFin),skipFin);
     }
     else if (corps->codop == If)
@@ -305,7 +311,8 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
         cptNomC3A += 1;
         BILQUAD quadIf = creer_bilquad(creer_quad(etiquette(etiq,cptNomC3A), JZ, condition.fin->RES, NULL, fg.debut->ETIQ));
         cptNomC3A += 1;
-        BILQUAD quadElse = creer_bilquad(creer_quad(etiquette(etiq,cptNomC3A+2), JP, NULL,NULL,finIf.debut->ETIQ));
+        BILQUAD quadElse = creer_bilquad(creer_quad(etiquette(etiq,cptNomC3A), JP, NULL,NULL,finIf.debut->ETIQ));
+        
         b = concatq(concatq(concatq(concatq(concatq(condition,quadIf),fd),quadElse),fg),finIf);        
     }
     return b;
@@ -319,7 +326,7 @@ BILQUAD traduire_fonction(LFON fonction)
     cptNomC3A += 1;
     BILQUAD ret = creer_bilquad(creer_quad(etiquette(fonction->ID, cptNomC3A), RET, NULL,NULL,NULL));
     
-    return concatq(creer_bilquad(creer_quad(etiquette(fonction->ID, -1), NULL,NULL,NULL,NULL)),concatq(b,ret));
+    return concatq(creer_bilquad(creer_quad(etiquette(fonction->ID, -1), SK,NULL,NULL,NULL)),concatq(b,ret));
 }
 BILQUAD traduire_toutes_les_fonctions(BILFON fonctions)
 {

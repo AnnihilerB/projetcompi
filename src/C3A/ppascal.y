@@ -227,20 +227,7 @@ Et: V '[' E ']' {
                     }
     ;
 C: C Se C {$$ = Nalloc(); $$->FG = $1; $$->codop = Se; $$->FD = $3;}
-    | Sk {$$ = Nalloc(); $$->codop = Sk;}
-    | '{' C '}' {$$ = $2;}
-    | V '(' L_args ')'  {
-                            LFON fonction = rechercher_lfon($1->ETIQ,ListeFonctionsGLOBALES.debut);
-                            if (fonction == NULL)
-                            {
-                                renvoyer_erreur($1->ETIQ, NON_DEFINIE);
-                                return 1;
-                            }
-                            if (verification_appel_fonction(fonction, $3) != 0)
-                                return 1;
-                            $$ = Nalloc(); $$->codop = NFon; $$->ETIQ = $1->ETIQ; $$->FG = $3; $$->FD = NULL;
     
-                        }
     | Ca {$$ = $1;}
     ;
 
@@ -258,9 +245,21 @@ Ca: Wh E Do Ca {
                 }
                 $$ = Nalloc(); $$->codop = Wh; $$->FG = $2; $$->FD = $4;
               }
+  | V '(' L_args ')'  {
+                            LFON fonction = rechercher_lfon($1->ETIQ,ListeFonctionsGLOBALES.debut);
+                            if (fonction == NULL)
+                            {
+                                renvoyer_erreur($1->ETIQ, NON_DEFINIE);
+                                return 1;
+                            }
+                            if (verification_appel_fonction(fonction, $3) != 0)
+                                return 1;
+                            $$ = Nalloc(); $$->codop = NFon; $$->ETIQ = $1->ETIQ; $$->FG = $3; $$->FD = NULL;
+    
+                        }
   | '{' C '}' {$$ = $2;}
   | Sk {$$ = Nalloc(); $$->codop = Sk;}
-  | If E Th C El Ca {
+  | If E Th Ca El Ca {
                         ENV env = existe($2, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
                         if (env == NULL)
                         {

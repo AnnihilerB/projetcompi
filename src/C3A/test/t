@@ -1,8 +1,12 @@
-var x : integer
+var x : integer,
+var y : integer,
+var c : integer
 
-defun Foo (): integer
-	x := x;
-	x := 3;
-	x := x + x
+defun foo (x:integer): integer
+    var c: integer
+    
+    c := 23;
+    x := 4+8;
+    y := foo(3)
 
-x:=5
+c := 8
