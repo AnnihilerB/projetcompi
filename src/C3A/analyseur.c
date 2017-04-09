@@ -66,7 +66,7 @@ ENV rechercher_env (char* nom, ENV env)
     ENV w = copier_env(env);
     while (w != NULL)
     {
-        if (strcmp(nom, w->ID) == 0)
+        if (nom != NULL && w->ID != NULL && strcmp(nom, w->ID) == 0)
             return w;
         w = w->SUIV;
     }
