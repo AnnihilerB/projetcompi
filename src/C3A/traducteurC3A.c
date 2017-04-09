@@ -326,7 +326,7 @@ BILQUAD traduire_fonction(LFON fonction)
     cptNomC3A += 1;
     BILQUAD ret = creer_bilquad(creer_quad(etiquette(fonction->ID, cptNomC3A), RET, NULL,NULL,NULL));
     
-    return concatq(creer_bilquad(creer_quad(etiquette(fonction->ID, -1), 0,NULL,NULL,NULL)),concatq(b,ret));
+    return concatq(creer_bilquad(creer_quad(etiquette(fonction->ID, -1), SK,NULL,NULL,NULL)),concatq(b,ret));
 }
 BILQUAD traduire_toutes_les_fonctions(BILFON fonctions)
 {
