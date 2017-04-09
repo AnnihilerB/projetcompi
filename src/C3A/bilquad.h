@@ -29,5 +29,6 @@ extern void ecrire_quad(QUAD qd); /* affiche le quadruplet
 */
 extern void ecrire_bilquad(BILQUAD bq); /* affiche la biliste de quadruplets     
 */
+extern char *nomop(int codop);
 
 #endif

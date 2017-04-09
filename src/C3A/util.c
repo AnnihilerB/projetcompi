@@ -78,36 +78,6 @@ ENV copier_env(ENV  env){
 	return e;
 }
 
-char *nomop(int codop){
-
-	switch(codop)
-    {
-    case(T_boo): return("T_boo");
-    case(T_int): return("T_int");
-    case(Def): return("Def");
-    case(Dep): return("Dep");
-    case(true): return("true");
-    case(false): return("false");
-    case(Se): return("Se");
-    case(If): return("If");
-    case(Th): return("Th");
-    case(El): return("El");
-    case(Var): return("Var");
-    case(Wh): return("Wh");
-    case(Do):return("Do");
-    case(Af): return("Af");
-    case(Sk): return("Sk");
-    case(Pl): return("Pl");
-    case(Mo): return("Mo");
-    case(Mu): return("Mu");
-    case(And): return("And");
-    case(Or): return("Or");
-    case(Not): return("Not");
-    case(Lt): return("Lt");
-    case(Eq): return("Eq");
-    };
-
-}
 
 ENV rech2(char *chaine, ENV rho_gb, ENV rho_lc){
 	if(rho_lc!=NULL){

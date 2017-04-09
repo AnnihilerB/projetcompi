@@ -5,7 +5,7 @@ typedef struct envg{
     BILENV variablesGlobales;
     NOE corpsGlobale;
     BILFON listeDesFonctionsOuProcedure;
-} *EnvGlobal;
+} EnvGlobal;
 
 
 

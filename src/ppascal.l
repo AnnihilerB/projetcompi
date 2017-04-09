@@ -18,6 +18,7 @@ yylval.nom[1] = Idalloc();
 strcpy(yylval.nom[1],yytext);
 return I;
 }
+
 := {return Af;}
 = {return Eq;}
 skip {return Sk;}
@@ -55,7 +56,6 @@ integer {return T_int;}
 boolean {return T_boo;}
 array" "of {return T_ar;}
 , {return yytext[0];}
-
 
 [A-Za-z]+|[A-Za-z]+[0-9]+ {
     NOE v = Nalloc(); 

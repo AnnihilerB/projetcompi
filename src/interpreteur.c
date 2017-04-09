@@ -1,7 +1,6 @@
 #include "util.h"
 #include "analyseur.h"
 #include "ppascal.tab.h"
-#include "tableau.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -14,6 +13,7 @@ int dansFonction = 0; //Indicateur dans fonction
 ENV cpy;
 TAB t;
 CASE c;
+
 
 
 void interpreteur(EnvGlobal env){
