@@ -1,6 +1,7 @@
 #include "util.h"
 #include "analyseur.h"
 #include "ppascal.tab.h"
+#include "tableau.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -10,14 +11,18 @@ LFON fonctionCourante; //Fonction à éxecuter si appel de fonctions.
 BILENV paramFonctions; //Paramètre d'un appel de fonctions interprétés.
 int dansFonction = 0; //Indicateur dans fonction
 
-ENV cpy;
-TAB t;
-CASE c;
+ENV cpy; //Environnement de copie lors d'un AF
+
+
+TAB t; // Tableau
+BILTAB biltab;
+TAB TEST;
 
 
 
 void interpreteur(EnvGlobal env){
   envG = env;
+  biltab = biltab_vide();
   interp_rec(envG.corpsGlobale);
 }
 
@@ -56,7 +61,6 @@ void interp_args(NOE fonction, BILENV param, BILENV *paramFonctions){
 }
 
 int interp_rec(NOE corps){
-  printf("codop : %d\n", corps->codop);
   switch (corps->codop){
     /* ---------- Cas de base (minimaux) ---------- */
     case T_boo:
@@ -70,6 +74,12 @@ int interp_rec(NOE corps){
       }
       return atoi(corps->ETIQ);
     case V:
+      if (corps->FG != NULL && corps->FD != NULL){ //La variable est un tableau.
+        t = rechercher_tableau(corps->FG->ETIQ, biltab); //Récupération du tableau
+        return lire_tableau(t, atoi(corps->FD->ETIQ)); //REnvoie la valeur du tableau dans la case corps->FD->ETIQ
+        break;
+      }
+
       if (dansFonction){ // Dans un appel de fonctions.
         varEnv = rech2(corps->ETIQ, fonctionCourante->VARLOC.debut, paramFonctions.debut); //Priorité de la recherche sur la liste de paramètre.
         if (varEnv == NULL){
@@ -78,29 +88,22 @@ int interp_rec(NOE corps){
         }
         if (varEnv == NULL){
           //Variable pas présente du tout donc valeur de retour.
-          printf("COUROU\n");
           varEnv = Envalloc();
           varEnv->ID = Idalloc();
           strcpy(varEnv->ID, corps->ETIQ);
-          printf("COUROU\n");
         }
       }
       else{
         //Hors fonction ou a
         varEnv = rech2(corps->ETIQ, envG.variablesGlobales.debut, envG.variablesGlobales.debut);
       }
-      printf("env : %s\n", varEnv->ID);
       return varEnv->VAL;
       break;
+
     case NewAr:
-        printf("---------- NewAr ----------\n");
-        printf("varEnv :%s\n", varEnv->ID);
-        printf("taille :%s\n", corps->FD->ETIQ);
-        t = creer_tableau(varEnv->ID, atoi(corps->FD->ETIQ));
-        printf("OK\n");
-        affichertab(t, atoi(corps->FD->ETIQ));
-        printf("---------- NewAr ----------\n");
-        break;
+        t = creer_tableau(varEnv->ID, atoi(corps->FD->ETIQ)); // Créé un tableau don le nom est varEnv, de taille FD->ETIQ
+        ajouter_tableau(&biltab, t); //AJoute le tableau au BILTAB
+        break;   
 
     /* ---------- Cas composés ---------- */
     case NPro: case NFon:
@@ -111,8 +114,17 @@ int interp_rec(NOE corps){
       dansFonction = 0; //Sortie de fonction.
       return varEnv->VAL; //Envoie de la valeur de retour
       break;
+      
     case Af:
-      if (corps->FG->codop == V){
+      if (corps->FG->FG != NULL && corps->FG->FD != NULL && corps->FG->codop == V){ //Un des deux memebres est un tableau.
+        //Vérifie si le membre gauche est un tableau
+        t = rechercher_tableau(corps->FG->ETIQ, biltab);
+        if (t != NULL){
+          ecrire_tableau(t, interp_rec(corps->FG->FD) , interp_rec(corps->FD)); //Ecriture de la valeur dans la case
+        }
+        break;
+      }
+      else if (corps->FG->codop == V){ //Membre droit variable/valeur/tableau
         //Variable classique
         interp_rec(corps->FG); //Interp pour stocker dans varEnv l'ENV de la variable.
         cpy = Envalloc();
@@ -120,9 +132,6 @@ int interp_rec(NOE corps){
         affect(cpy, cpy->ID, interp_rec(corps->FD));
         break;
       }
-      if (corps->FG->codop == T_ar)
-        //tableaux
-        break;
     case Pl: case Mo: case Mu: case And: case Or: case Lt: case Eq:
       return evaluation(corps->codop, interp_rec(corps->FG), interp_rec(corps->FD));
     case Not:
