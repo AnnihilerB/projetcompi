@@ -8,6 +8,7 @@
 BILQUAD bilist;
 QUAD quad; 
 QUAD presentquad; 
+QUAD callquad;
 int operator;
 char * ETIQ;
 char * ARG1; 
@@ -17,12 +18,19 @@ char * RES;
 void interpreteurC3A(BILQUAD bilist){
 
 	presentquad = bilist.debut;
+
 	ENV environnement = Envalloc();
 	environnement->ID = Idalloc();
 	environnement->SUIV = NULL;
+
+	ENV envfonction = Envalloc();
+	envfonction->ID = Idalloc();
+	envfonction->SUIV = NULL;
+
 	int val1;
 	int val2;
 	int result;
+	int nparam;
 
 	ecrire_bilquad(bilist);
 
@@ -108,8 +116,54 @@ void interpreteurC3A(BILQUAD bilist){
 			else
 				result=1;
 			affect(environnement, RES, result);
-
 		}							
+
+		else if(operator==JP){
+			presentquad = rechbq(RES, bilist);
+		}
+
+		else if(operator==JZ){
+			if(valch(environnement, ARG1)==0){
+				presentquad = rechbq(ARG1, bilist);
+			}
+		}
+
+		else if(operator==IND){
+
+		}
+
+		else if(operator==AFIND){
+
+		}
+
+		else if(operator==PARAM){
+
+			if(isdigit(atoi(ARG2)))
+				val2 = atoi(ARG2);
+			else
+				val2 = valch(environnement, ARG2);
+
+			if(rech(envfonction, ARG1)==NULL)
+				initenv(&environnement, ARG1);
+			else
+				affect(envfonction, ARG1, val2);
+		}
+
+		else if(operator==CALL){
+			callquad=presentquad;
+			nparam = atoi(ARG2);
+			presentquad=rechbq(ARG1, bilist);
+
+
+		}
+
+		else if(operator==RET){
+			presentquad=callquad->SUIV;
+		}
+
+		if(operator!=JZ && operator!=JP){
+			presentquad=presentquad->SUIV;
+		}
 
 	}
 	ecrire_env(environnement);
