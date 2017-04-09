@@ -66,7 +66,7 @@ ENV rechercher_env (char* nom, ENV env)
     ENV w = copier_env(env);
     while (w != NULL)
     {
-        if (strcmp(nom, w->ID) == 0)
+        if (nom != NULL && w->ID != NULL && strcmp(nom, w->ID) == 0)
             return w;
         w = w->SUIV;
     }
@@ -152,4 +152,20 @@ ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariablesGlobale, BILE
             envTrouve->type.type = T_int;
     }
     return envTrouve;
+}
+ENV trouver_variable_dupliquee(BILENV vars)
+{
+    ENV v1 = vars.debut;
+    while (v1 != NULL)
+    {
+        ENV v2 = v1->SUIV;
+        while (v2 != NULL)
+        {
+            if (strcmp(v1->ID, v2->ID) == 0)
+                return v1->ID;
+            v2 = v2->SUIV;
+        }
+        v1 = v1->SUIV;
+    }
+    return NULL;
 }

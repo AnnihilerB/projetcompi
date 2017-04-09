@@ -17,4 +17,5 @@ ENV rechercher_env (char* nom, ENV env);
 LFON rechercher_lfon(char* nom, LFON lfon);
 ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariablesGlobale, BILENV listeVariablesLocales); //remplie le type de ENV en même temps
 void ecrire_type(Type t);
+ENV trouver_variable_dupliquee(BILENV vars);
 #endif

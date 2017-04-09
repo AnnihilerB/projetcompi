@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "analyseur.h"
-#include "util.h"
 #include "ppascal.tab.h"
 
 void ecrire_type(Type t)
@@ -107,15 +106,12 @@ ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariablesGlobale, BILE
     {
         if (noeud->FG != NULL && noeud->FD != NULL) //c'est un tableau
         {
-            printf("test\n");
             nomENV = noeud->ETIQ;
             
             envTrouve = rechercher_env(nomENV, listeVariablesLocales.debut);
             if (envTrouve == NULL && (envTrouve = rechercher_env(nomENV, listeVariablesGlobale.debut)) == NULL)
                 return NULL;
-            printf("%s: \n", noeud->ETIQ);ecrire_type(envTrouve->type);
             Type t = renvoie_type_avec_un_noeudVariable(noeud);
-            printf("%s ici: \n", noeud->ETIQ); ecrire_type(t);
             envTrouve->type.dim -= t.dim;
             
         }
@@ -156,4 +152,20 @@ ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariablesGlobale, BILE
             envTrouve->type.type = T_int;
     }
     return envTrouve;
+}
+ENV trouver_variable_dupliquee(BILENV vars)
+{
+    ENV v1 = vars.debut;
+    while (v1 != NULL)
+    {
+        ENV v2 = v1->SUIV;
+        while (v2 != NULL)
+        {
+            if (strcmp(v1->ID, v2->ID) == 0)
+                return v1->ID;
+            v2 = v2->SUIV;
+        }
+        v1 = v1->SUIV;
+    }
+    return NULL;
 }

@@ -19,4 +19,22 @@ BILQUAD traduire_fonction(LFON fonction);
 BILQUAD traduire_corps(NOE corps, char* etiq);
 BILQUAD traduire_appel_fonction (NOE noeud, BILFON listeFonctions, char* etiq);
 BILQUAD traduire_ecriture_tableau (NOE noeud, char* etiq);
+
+
+typedef struct varLocAChanger{
+    char* nom_original;
+    char* nouveau_nom;
+    struct varLocAChanger* SUIV;
+    
+}*VAR_LOC;
+typedef struct listeVarLocAChanger{
+    VAR_LOC debut;
+    VAR_LOC fin;
+}ListeVarLocAChanger;
+
+void remplir_listeVarLoc(BILENV varGlobale, LFON fonction);
+ListeVarLocAChanger listeVarLocAChanger_vide();
+void ajouter_variable_locale_a_changer(char* nom);
+VAR_LOC rech_VAR_LOC(char* nom);
+VAR_LOC VAR_LOC_vide();
 #endif

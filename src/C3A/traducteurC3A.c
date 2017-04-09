@@ -1,12 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "traducteurC3A.h"
 #include "bilquad.h"
 #include "ppascal.tab.h"
 
 int cptNomC3A;
 int LireTableau;
+int estDansFonction;
 EnvGlobal envG;
+ListeVarLocAChanger listeVarLoc;
 char* intToChar(int c){
     char* nom = malloc(7);
     sprintf(nom, "%d", c);
@@ -88,7 +91,15 @@ BILQUAD traduire_appel_fonction (NOE noeud, BILFON listeFonctions, char* etiq)
         cptNomC3A += 1;
         BILQUAD calculArg = traduire_corps(argsEnvoyee->FD, etiq); 
         cptNomC3A += 1;
-        BILQUAD instructionParam = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), PARAM, paramActuel->ID, calculArg.fin->RES, NULL));
+        VAR_LOC var = rech_VAR_LOC(paramActuel->ID);
+        BILQUAD instructionParam;
+        if (var == NULL)
+        {
+             instructionParam = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), PARAM, paramActuel->ID, calculArg.fin->RES, NULL));
+        }
+        else
+            instructionParam = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), PARAM, var->nouveau_nom, calculArg.fin->RES, NULL));
+        
         b = concatq(b, concatq(calculArg,instructionParam));
         argsEnvoyee = argsEnvoyee->FG;
         paramActuel = paramActuel->SUIV;
@@ -180,7 +191,16 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
         {
             //ecrire bilquad variable
             cptNomC3A += 1;
-            b = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), SK, NULL,NULL, corps->ETIQ));
+            if (estDansFonction == 1)
+            {
+                VAR_LOC var = rech_VAR_LOC(corps->ETIQ);
+                if (var != NULL)
+                    b = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), SK, NULL,NULL, var->nouveau_nom));
+                else
+                    b = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), SK, NULL,NULL, corps->ETIQ));
+            }
+            else
+                b = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), SK, NULL,NULL, corps->ETIQ));
             
         }
         else 
@@ -321,11 +341,12 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
 
 BILQUAD traduire_fonction(LFON fonction)
 {
+    estDansFonction = 1;
     cptNomC3A = 0;
     BILQUAD b =  traduire_corps(fonction->CORPS, fonction->ID);
     cptNomC3A += 1;
     BILQUAD ret = creer_bilquad(creer_quad(etiquette(fonction->ID, cptNomC3A), RET, NULL,NULL,NULL));
-    
+    estDansFonction = 0;
     return concatq(creer_bilquad(creer_quad(etiquette(fonction->ID, -1), SK,NULL,NULL,NULL)),concatq(b,ret));
 }
 BILQUAD traduire_toutes_les_fonctions(BILFON fonctions)
@@ -335,10 +356,65 @@ BILQUAD traduire_toutes_les_fonctions(BILFON fonctions)
     while (f != NULL)
     {
         cptNomC3A = 0;
+        listeVarLoc = listeVarLocAChanger_vide();
+        remplir_listeVarLoc(envG.variablesGlobales, f);
         bil = concatq(bil,traduire_fonction(f));
         f = f->SUIV;
     }
     return bil;
+}
+void remplir_listeVarLoc(BILENV varGlobale, LFON fonction)
+{
+    ENV varG = varGlobale.debut;
+    while (varG != NULL)
+    {
+        if (rechercher_env(varG->ID, fonction->PARAM.debut) != NULL || rechercher_env(varG->ID, fonction->VARLOC.debut) != NULL)
+        {
+            ajouter_variable_locale_a_changer(varG->ID);
+        }
+        varG = varG->SUIV;
+    }
+}
+ListeVarLocAChanger listeVarLocAChanger_vide()
+{
+    ListeVarLocAChanger l;
+    l.debut = l.fin = NULL;
+    return l;
+}
+void ajouter_variable_locale_a_changer(char* nom)
+{
+    VAR_LOC v = VAR_LOC_vide();
+    strcpy(v->nom_original, nom);
+    strcpy(v->nouveau_nom, v->nom_original);
+    v->nouveau_nom[strlen(v->nouveau_nom)] = 'L';
+    v->nouveau_nom[strlen(v->nouveau_nom)] = '\0';
+    if (listeVarLoc.debut == NULL)
+    {
+        listeVarLoc.debut = listeVarLoc.fin = v;
+    }
+    else
+    {
+        listeVarLoc.fin->SUIV = v;
+        listeVarLoc.fin = v;
+    }
+}
+VAR_LOC rech_VAR_LOC(char* nom)
+{
+    VAR_LOC v = listeVarLoc.debut;
+    while (v != NULL)
+    {
+        if (strcmp(nom, v->nom_original) == 0)
+            break;
+        v = v->SUIV;
+    }
+    return v;
+}
+VAR_LOC VAR_LOC_vide()
+{
+    VAR_LOC v = malloc(sizeof(struct varLocAChanger));
+    v->nom_original = Idalloc();
+    v->nouveau_nom = Idalloc();
+    v->SUIV = NULL;
 }
 
 char* etiquette(char* n, int c){
