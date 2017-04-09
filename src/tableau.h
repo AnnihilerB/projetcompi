@@ -1,16 +1,43 @@
-/** Module de manipulation de tableau pour l'interpréteur PP **/
+/** Module de gestion des tableaux à 1D **/
 
-#include "environ.h"
-#include "util.h"
+typedef struct caseTableau{
+    int indice;
+    int val; 
+    struct caseTableau *SUIV;
+}*CASE;
 
 typedef struct tableau{
-    int *tab;
-    TAB *FG;
+    char *nom;
+    int taille;
+    CASE debut;
+    struct tableau *SUIV;
 }*TAB;
 
-//Affecte dans tableau la valeur dasn la case index
-void affecter_valeur(TAB *tableau, int index, int valeur);
-//creer un tableau à n dimension, de taille taille
-TAB creer_tableau(int dimension, int taille);
-//renvoie la valeur dans tableau à index
-int recuperer_valeur(TAB* tableau, int index);
+typedef struct{
+    TAB debut;
+    TAB fin;
+}BILTAB;
+
+//Affiche le tableau t.
+void affichertab(TAB t, int taille);
+
+//Créé une instance de caseTableau.
+CASE creer_caseTableau(int indice);
+
+//Créé un tableau
+TAB creer_tableau(char *nom, int n);
+
+//Recherche dans la biliste de tableau, le tableau étiquété nom.
+TAB rechercher_tableau(char *nom, BILTAB bil);
+
+//Créé une biliste vide.
+BILTAB biltab_vide();
+
+//Ajoute un tableau à la biliste.
+void ajouter_tableau(BILTAB *bil, TAB t);
+
+//retourne la valeur à la case indice
+int lire_tableau(TAB t, int indice);
+
+//Ecrit val dans la case indice.
+void ecrire_tableau(TAB t, int indice, int val);
