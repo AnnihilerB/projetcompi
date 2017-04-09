@@ -156,6 +156,7 @@ BILQUAD traduire_lecture_tableau (NOE noeud, char* etiq)
 {
     BILQUAD b = recursif_lecture_tableau(noeud, etiq);
 }
+
 BILQUAD traduire_corps(NOE corps, char* etiq)
 {
     BILQUAD b = bilquad_vide();
@@ -310,6 +311,7 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
     return b;
     
 }
+
 BILQUAD traduire_fonction(LFON fonction)
 {
     cptNomC3A = 0;
@@ -325,6 +327,7 @@ BILQUAD traduire_toutes_les_fonctions(BILFON fonctions)
     LFON f = fonctions.debut;
     while (f != NULL)
     {
+        cptNomC3A = 0;
         bil = concatq(bil,traduire_fonction(f));
         f = f->SUIV;
     }
