@@ -12,7 +12,12 @@
 %}
 
 %%
-\-[0-9]|\-[1-9][0-9]+|[0-9]|[1-9][0-9]+ {yylval.nom[1] = strdup(yytext);return I;}
+-[0-9]|-[1-9][0-9]+|[0-9]|[1-9][0-9]+ {
+    printf("dans flex :%s\n", yytext); 
+yylval.nom[1] = Idalloc();
+strcpy(yylval.nom[1],yytext);
+return I;
+}
 := {return Af;}
 = {return Eq;}
 skip {return Sk;}
