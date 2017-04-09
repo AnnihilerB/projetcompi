@@ -331,7 +331,15 @@ L_argsnn: E {$$ = Nalloc(); $$->FD = $1; }
     | E ',' L_argsnn {$$ = Nalloc(); $$->FD = $1; $$->FG = $3;}
     ;
 L_argt: %empty {$$ = bilenv_vide();}
-    | L_argtnn {$$ = $1;}
+    | L_argtnn {
+                    $$ = $1;
+                    char* varDupliquee = trouver_variable_dupliquee($$);
+                    if (varDupliquee != NULL)
+                    {
+                        fprintf(stderr, "le paramètre %s est dupliqué\n", varDupliquee);
+                        return 1;
+                    }
+               }
     ;
 L_argtnn: Argt {$$ = creer_bilenv($1);}
     | L_argtnn ',' Argt {$$ = concat($1, creer_bilenv($3)); }
@@ -344,10 +352,19 @@ TP: T_boo {$$ = Nalloc(); $$->codop = T_boo;}
     ;
 L_vart: %empty {$$ = bilenv_vide();}
     | L_vartnn {    $$ = $1; 
-                    if (estDansFonction == false)
+                    if (estDansFonction == false){
                         ListeVariablesGLOBALES = $$;
+                        ListeVariablesLOCALES = ListeVariablesGLOBALES;
+                    }
                     else
                         concat(ListeVariablesLOCALES, copier_bilenv($$));
+                    
+                    char* varDupliquee = trouver_variable_dupliquee(ListeVariablesLOCALES);
+                    if (varDupliquee != NULL)
+                    {
+                        fprintf(stderr, "la variable %s est dupliquée\n", varDupliquee);
+                        return 1;
+                    }
                }
     ;
 L_vartnn: Var Argt {$$ = creer_bilenv($2);}
@@ -374,10 +391,10 @@ D_entf: Def NFon '(' L_argt ')' ':' TP {
                                        }
     ;
 D: D_entp L_vart C {                        
-                        $$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3;estDansFonction = false; ListeVariablesLOCALES = bilenv_vide(); fonctionActuel = NULL;
+                        $$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3;estDansFonction = false; /*ListeVariablesLOCALES = bilenv_vide();*/ ListeVariablesLOCALES = ListeVariablesGLOBALES; fonctionActuel = NULL;
                    }
     | D_entf L_vart C {
-                            $$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3; estDansFonction = false; ListeVariablesLOCALES = bilenv_vide(); fonctionActuel = NULL;
+                            $$ = Lfonalloc(); $$->ID = $1->ID; $$->PARAM = $1->PARAM; $$->VARLOC = $2; $$->CORPS = $3; estDansFonction = false; /*ListeVariablesLOCALES = bilenv_vide();*/ ListeVariablesLOCALES = ListeVariablesGLOBALES; fonctionActuel = NULL;
                       }
     ;
 LD: %empty {$$ = bilfon_vide();}

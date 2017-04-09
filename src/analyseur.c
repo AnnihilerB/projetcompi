@@ -153,3 +153,19 @@ ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariablesGlobale, BILE
     }
     return envTrouve;
 }
+ENV trouver_variable_dupliquee(BILENV vars)
+{
+    ENV v1 = vars.debut;
+    while (v1 != NULL)
+    {
+        ENV v2 = v1->SUIV;
+        while (v2 != NULL)
+        {
+            if (strcmp(v1->ID, v2->ID) == 0)
+                return v1->ID;
+            v2 = v2->SUIV;
+        }
+        v1 = v1->SUIV;
+    }
+    return NULL;
+}
