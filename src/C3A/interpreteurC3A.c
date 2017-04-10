@@ -6,6 +6,7 @@
 #include "environ.h"
 #include "interpreteurC3A.h"
 #include "traducteurC3A.h"
+#include "tableau.h"
 
 BILQUAD bilist;
 QUAD quad; 
@@ -16,16 +17,8 @@ char * ETIQ;
 char * ARG1; 
 char * ARG2;
 char * RES;
-char * TAB;
-
-char *concats(const char *s1, const char *s2){
-	char *res = malloc(strlen(s1) + strlen(s2) +1);
-	if(res){
-		strcpy(res, s1);
-		strcat(res,s2);
-	}
-	return res;
-}
+BILTAB bilisttab;
+TAB tableau;
 
 void interpreteurC3A(BILQUAD bilist){
 	printf("DEBUT\n");
@@ -39,9 +32,7 @@ void interpreteurC3A(BILQUAD bilist){
 	envfonction->ID = Idalloc();
 	envfonction->SUIV = NULL;
 
-	ENV envtab = Envalloc();
-	envtab->ID = Idalloc();
-	envtab->SUIV = NULL;
+	bilisttab = biltab_vide();
 
 	int val1;
 	int val2;
@@ -178,36 +169,41 @@ void interpreteurC3A(BILQUAD bilist){
 			}
 		}
 
-		else if(operator==IND){
+		else if(operator==IND){ //on ajoute à la variable destination la valeur de ARG1[ARG2]
 			printf("lapin IND\n");
 			if(isdigit(atoi(ARG2)))
 				val2 = atoi(ARG2);
-			else{
+			else
 				val2 = valch(environnement, ARG2);
-				sprintf(ARG2, "%d", val2);
-			}
 
-			TAB = concats(ARG1, ARG2);
-
-			valtab = valch(envtab, TAB);
-			affect(environnement, TAB, valtab);
+			tableau=rechercher_tableau(ARG1, bilisttab);			
+			result= lire_tableau(tableau, val2);
+			affect(environnement, RES, result);
 		}
 
 		else if(operator==AFIND){
 			printf("lapin AFIND\n");
-			if(isdigit(atoi(ARG2)))
-				val2 = atoi(ARG2);
-			else
-				val2 = valch(environnement, ARG2);
-				sprintf(ARG2, "%d", val2);
 
-			TAB = concats(ARG1, ARG2);
+			if(strcmp(ARG1,ARG2)==0){ //Si le tableau n'existe pas.
+				if(isdigit(atoi(RES)))
+					result = atoi(RES);
+				else
+					result = valch(environnement, RES);
 
-			if(rech(TAB, envtab)==NULL)	
-				initenv(&environnement, TAB);
-			else
-				affect(envtab, TAB, valtab);	
+				tableau = creer_tableau(ARG1, result);
+				ajouter_tableau(&bilisttab, tableau);
+			}
 
+			else{ //Si on veut ajouter la valeur de destination dans le tableau
+
+				if(isdigit(atoi(ARG2)))
+					val2 = atoi(ARG2);
+				else
+					val2 = valch(environnement, ARG2);	
+				result = valch(environnement, RES);
+				tableau=rechercher_tableau(ARG1, bilisttab);
+				ecrire_tableau(tableau, val2, result);
+			}
 		}
 
 		else if(operator==PARAM){
@@ -238,7 +234,7 @@ void interpreteurC3A(BILQUAD bilist){
 
 		}
 
-		if(operator!=JZ && operator!=JP){
+		if(operator!=JZ && operator!=JP && operator!=CALL && operator!=RET){
 			presentquad=presentquad->SUIV;
 		}
 
