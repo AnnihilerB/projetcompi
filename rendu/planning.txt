@@ -16,25 +16,25 @@ RAPPEL: la date-limite d'envoi du projet est le Lundi 10/04/17 Ã  23h 59.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SOUTENANCES des projets de Compilation.
-
+1: disponible 0: non disponible
 Mercredi 12/04/17:  H.Derycke/G.SÃ©nizergues
-14h-15h:  G1:       G2:       G3:
-15h-16h:  G1:       G2:       G3:
-16h-17h:  G1:       G2:       G3:
-17h-18h:  G1:       G2:       G3:
-18h-19h:  G1:       G2:       G3:
+14h-15h:  G1: 1      G2: 1      G3: 1
+15h-16h:  G1: 1      G2: 1      G3: 1
+16h-17h:  G1: 1      G2: 1      G3: 1
+17h-18h:  G1: 1      G2: 1      G3: 1
+18h-19h:  G1: 1      G2: 1      G3: 1
 
 Jeudi 13/04/17:    L.ClÃ©ment/G.SÃ©nizergues
-13h-14h:  G1:       G2:       G3:
-14h-15h:  G1:       G2:       G3:
-15h-15h 30: G1
+13h-14h:  G1: 0      G2: 0      G3: 0
+14h-15h:  G1: 0      G2: 0      G3: 0
+15h-15h 30: G1: 0
 
 
 Vendredi 14/04/17:  L.ClÃ©ment/G.SÃ©nizergues
-8h-9h:    G1:       G2:       G3:
-9h-10h:   G1:       G2:       G3:
-10h-11h:  G1:       G2:       G3:
-11h-12h:  G1:       G2:       G3:
+8h-9h:    G1: 0      G2: 0      G3: 0
+9h-10h:   G1: 0      G2: 0      G3: 0
+10h-11h:  G1: 0      G2: 0      G3: 0
+11h-12h:  G1: 0      G2: 0      G3: 0
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
