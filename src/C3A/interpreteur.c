@@ -11,15 +11,17 @@ EnvGlobal envG; // Environnement du programme -> Var globale, listes des fonctio
 ENV varEnv; //Env stockant la variable courante.
 LFON fonctionCourante; //Fonction à éxecuter si appel de fonctions.
 BILENV paramFonctions; //Paramètre d'un appel de fonctions interprétés.
+
+int valRetour = 0; //Var est la variable de retour d'une fonction'
 int dansFonction = 0; //Indicateur dans fonction
 
 ENV cpy; //Environnement de copie lors d'un AF
-ENV tmp;
+ENV retFonction;
 
 
 TAB t; // Tableau
 BILTAB biltab;
-TAB TEST;
+int r;
 
 int evaluation(int op, int a, int b);
 int interp_rec(NOE corps);
@@ -29,6 +31,11 @@ void interpreteur(EnvGlobal env){
   envG = env;
   biltab = biltab_vide();
   interp_rec(envG.corpsGlobale);
+  t = biltab.debut;
+  while (t != NULL){
+    affichertab(t, 3);
+    t = t->SUIV;
+  }
 }
 
 void interp_args(NOE fonction, BILENV param, BILENV *paramFonctions){
@@ -98,9 +105,12 @@ int interp_rec(NOE corps){
         }
         if (varEnv == NULL){
           //Variable pas présente du tout donc valeur de retour.
-          varEnv = Envalloc();
-          varEnv->ID = Idalloc();
-          strcpy(varEnv->ID, corps->ETIQ);
+          cpy = Envalloc();
+          cpy->ID = Idalloc();
+          strcpy(cpy->ID, corps->ETIQ);
+          valRetour = 1;
+          printf("VAR RETOUR\n");
+          return 0;
         }
       }
       else{
@@ -111,7 +121,9 @@ int interp_rec(NOE corps){
       break;
 
     case NewAr:
-        t = creer_tableau(varEnv->ID, interp_rec(corps->FD)); // Créé un tableau don le nom est varEnv, de taille FD->ETIQ
+        cpy = varEnv;
+        r = interp_rec(corps->FD);
+        t = creer_tableau(cpy->ID, r); // Créé un tableau don le nom est varEnv, de taille FD->ETIQ
         ajouter_tableau(&biltab, t); //AJoute le tableau au BILTAB
         break;   
 
@@ -121,8 +133,8 @@ int interp_rec(NOE corps){
       fonctionCourante = rechercher_lfon(corps->ETIQ, envG.listeDesFonctionsOuProcedure.debut); //Recherche le LFON de la fonction courante.
       interp_args(corps, fonctionCourante->PARAM, &paramFonctions); //Interprétation de la liste des args lors de l'appel.
       interp_rec(fonctionCourante->CORPS); //Interprétation de la fonction
-      dansFonction = 0; //Sortie de fonction.
-      return varEnv->VAL; //Envoie de la valeur de retour
+       dansFonction = 0;
+      return cpy->VAL; //Envoie de la valeur de retour
       break;
       
     case Af:
@@ -136,10 +148,20 @@ int interp_rec(NOE corps){
       }
       else if (corps->FG->codop == V){ //Membre droit variable/valeur/tableau
         //Variable classique
-        interp_rec(corps->FG); //Interp pour stocker dans varEnv l'ENV de la variable.
-        cpy = Envalloc();
-        cpy = varEnv; // Garde une trace de la variable pour éviter réécriture par interp FD.
-        affect(cpy, cpy->ID, interp_rec(corps->FD));
+        printf("VALRETOUR : %d\n", valRetour);
+        if (valRetour){
+          printf("VAR RETOUR2222\n");
+          affect(cpy, cpy->ID, interp_rec(corps->FD));
+          valRetour = 0;
+          break;
+        }
+        else {
+          interp_rec(corps->FG); //Interp pour stocker dans varEnv l'ENV de la variable.
+          cpy = Envalloc();
+          cpy = varEnv; // Garde une trace de la variable pour éviter réécriture par interp FD.
+          affect(cpy, cpy->ID, interp_rec(corps->FD));
+          break;
+        }
         break;
       }
     case Pl: case Mo: case Mu: case And: case Or: case Lt: case Eq:
@@ -156,8 +178,9 @@ int interp_rec(NOE corps){
     case Sk:
       return 0;
     case Wh:
-      while (interp_rec(corps->FG))
+      while (interp_rec(corps->FG)){
         interp_rec(corps->FD);
+      }
       return 0;
     case If:
       if (interp_rec(corps->FG))
