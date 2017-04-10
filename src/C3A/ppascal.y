@@ -498,6 +498,9 @@ int execute_bison()
     ListeFonctionsGLOBALES = bilfon_vide();
     estDansFonction = false;
     if (yyparse() == 1)
+    {
         afficherLigne();
+        return 1;
+    }
     return 0;
 }

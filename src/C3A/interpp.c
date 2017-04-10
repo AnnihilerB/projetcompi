@@ -3,9 +3,10 @@
 #include "ppascal.tab.h"
 
 extern void interpreteur(EnvGlobal env);
-extern void execute_bison(); //dans ppascal.y
+extern int execute_bison(); //dans ppascal.y
 int main()
 {
-    execute_bison();
+    if (execute_bison() == 1)
+        return 1;
     interpreteur(envGlobal);
 }
