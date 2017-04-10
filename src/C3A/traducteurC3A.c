@@ -254,9 +254,10 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
             {
                 cptNomC3A += 1;
                 BILQUAD bb = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), AFIND, filsG.fin->RES, filsG.fin->RES, filsD.fin->RES));
-                filsD = concatq(filsD, bb);
+                b = concatq(filsD, bb);
             }
-            b = concatq(concatq(filsD,filsG), af);
+            else
+                b = concatq(concatq(filsD,filsG), af);
             LireTableau = 0;
         }
         
