@@ -19,7 +19,8 @@ void ecrire_noe(NOE noe){
 NOE copier_noe(NOE noe){
   NOE noeudCopie = malloc(sizeof(struct noeud));
   noeudCopie->codop = noe->codop;
-  noeudCopie->ETIQ = strdup(noe->ETIQ);
+  noeudCopie->ETIQ = Idalloc();
+  noeudCopie->ETIQ = strcpy(noeudCopie->ETIQ, noe->ETIQ);
   if (noe->FG != NULL)
     noeudCopie->FG = copier_noe(noe->FG);
   if (noe->FD != NULL)
@@ -32,7 +33,8 @@ NOE Nalloc()
 {
     struct noeud *noe = malloc(sizeof(struct noeud));
     noe->codop = 0;
-    noe->ETIQ = noe->FG = noe->FD = NULL;
+    noe->ETIQ = NULL;
+    noe->FG = noe->FD = NULL;
     return noe;
 }
 
@@ -215,12 +217,16 @@ void ecrire_fon(LFON bfn){
 
 }
 LFON rechfon(char *chaine, LFON listident){
-    if (strcmp(listident->ID, chaine) == 0)
-        return listident;
-    else if (listident->SUIV != NULL)
-        return rech(chaine, listident->SUIV);
-    else
+    LFON f = listident;
+    if (chaine == NULL)
         return NULL;
+    while (f != NULL)
+    {
+        if (strcmp(chaine, f->ID) == 0)
+            return f;
+        f = f->SUIV;
+    }
+    return NULL;
 }
 BILFON bilfon_vide()
 {

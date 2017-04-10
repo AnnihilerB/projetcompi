@@ -74,7 +74,10 @@ BILQUAD traduire_ppascal_vers_C3A(EnvGlobal programme)
     cptNomC3A = 0;
     BILQUAD corps = traduire_corps(programme.corpsGlobale, ET);
     BILQUAD fct = traduire_toutes_les_fonctions(programme.listeDesFonctionsOuProcedure);
-    return concat(corps, fct);
+    cptNomC3A += 1;
+    BILQUAD fin = creer_bilquad(creer_quad(etiquette(ET, cptNomC3A), ST, NULL,NULL,NULL));
+    
+    return concatq(concatq(corps, fin), fct);
 }
 BILQUAD traduire_appel_fonction (NOE noeud, BILFON listeFonctions, char* etiq)
 {    

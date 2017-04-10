@@ -132,20 +132,20 @@ char *nomop(int codop)
 /* affiche le quadruplet (pour generer code); puis saute a la ligne */
 void ecrire_quad(QUAD qd)
 { if(strcmp(qd->ETIQ,"") == 0)       /* etiquette= mot vide */
-    {printf("%-10s ","");}
+    {printf("%-10s:","");}
   else
     {printf("%-10s:",qd->ETIQ);}
   printf("%-6s ",nomop(qd->OP));
   if (qd->ARG1!=NULL)
-    {printf("%-10s",qd->ARG1);}
+    {printf(":%-10s",qd->ARG1);}
   else
-    {printf("%-10s","");}
+    {printf(":%-10s","");}
   if (qd->ARG2!=NULL)
-    {printf("%-10s",qd->ARG2);}
+    {printf(":%-10s",qd->ARG2);}
   else
-    {printf("%-10s","");}
+    {printf(":%-10s","");}
   if (qd->RES!=NULL)
-    {printf("%-10s\n",qd->RES);}
+    {printf(":%-10s\n",qd->RES);}
   else
     {printf("\n");}
   }

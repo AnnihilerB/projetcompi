@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "analyseur.h"
@@ -153,7 +154,7 @@ ENV existe (NOE noeud, BILFON listeFonctions, BILENV listeVariablesGlobale, BILE
     }
     return envTrouve;
 }
-ENV trouver_variable_dupliquee(BILENV vars)
+char* trouver_variable_dupliquee(BILENV vars)
 {
     ENV v1 = vars.debut;
     while (v1 != NULL)
