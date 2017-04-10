@@ -2,8 +2,10 @@
 #include "analyseur.h"
 #include "ppascal.tab.h"
 #include "tableau.h"
-#include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 
 EnvGlobal envG; // Environnement du programme -> Var globale, listes des fonctions, coprs du programme principal.
 ENV varEnv; //Env stockant la variable courante.
@@ -12,12 +14,15 @@ BILENV paramFonctions; //Paramètre d'un appel de fonctions interprétés.
 int dansFonction = 0; //Indicateur dans fonction
 
 ENV cpy; //Environnement de copie lors d'un AF
+ENV tmp;
 
 
 TAB t; // Tableau
 BILTAB biltab;
 TAB TEST;
 
+int evaluation(int op, int a, int b);
+int interp_rec(NOE corps);
 
 
 void interpreteur(EnvGlobal env){
@@ -36,6 +41,11 @@ void interp_args(NOE fonction, BILENV param, BILENV *paramFonctions){
 
   while(paramFormel != NULL){ 
     if (paramFormel->ID != NULL){ //Dans le cas d'une fonction le premier paramètre est null.
+      if (rechercher_env(paramFormel->ID, fonctionCourante->PARAM.debut)->type.dim != 0){ //Le paramètre est un tableau
+        t = creer_tableau(paramFormel->ID, rechercher_tableau(paramAppel->FD->ETIQ, biltab)->taille);
+        ajouter_tableau(&biltab, t);
+      }
+
       int res = interp_rec(paramAppel->FD); //Résultat de l'interprétation du fils droit -> appel du paramètre.
 
       ENV p = Envalloc(); //Env stockant la valeur de l'interprétation du fils droit
