@@ -244,11 +244,18 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
             cptNomC3A += 1;
             LireTableau = 1;
             BILQUAD filsD = traduire_corps(corps->FD, etiq);
+            
             LireTableau = 0;
             cptNomC3A += 1;
             BILQUAD filsG = traduire_corps(corps->FG, etiq);
             cptNomC3A += 1;
             BILQUAD af = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), AF, filsG.fin->RES, filsD.fin->RES, NULL));
+            if (corps->FD->codop == NewAr)
+            {
+                cptNomC3A += 1;
+                BILQUAD bb = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), AFIND, filsG.fin->RES, filsG.fin->RES, filsD.fin->RES));
+                filsD = concatq(filsD, bb);
+            }
             b = concatq(concatq(filsD,filsG), af);
             LireTableau = 0;
         }
@@ -258,11 +265,8 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
     {
         int tmp = cptNomC3A;
         cptNomC3A += 1;
-        BILQUAD f = traduire_corps(corps->FD, etiq);
-        cptNomC3A += 1;
-        BILQUAD bb = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), AFIND, corps->ETIQ, corps->ETIQ, VA(cptNomC3A+1)));
-        cptNomC3A += 1;
-        b = concatq(f, bb);
+        b = traduire_corps(corps->FD, etiq);
+        
     }
     else if (corps->codop != Not && corps->codop >= Pl && corps->codop <= Eq)  //Pl,Mo,Mu,And,Or,Lt,Eq
     {
