@@ -301,7 +301,8 @@ BILQUAD traduire_corps(NOE corps, char* etiq)
         cptNomC3A += 1;
         BILQUAD fils = traduire_corps(corps->FD, etiq);
         cptNomC3A += 1;
-        BILQUAD neg = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), NOT, corps->ETIQ, NULL, fils.fin->RES));
+        BILQUAD neg = creer_bilquad(creer_quad(etiquette(etiq, cptNomC3A), NOT, fils.fin->RES, NULL, VA(cptNomC3A+1));
+        cptNomC3A += 1;
         b = concatq(fils, neg);
     }
     else if (corps->codop == Sk)
