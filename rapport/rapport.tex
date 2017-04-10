@@ -104,6 +104,10 @@ L'analyseur sémantique vérifie que:\newline
 
 \subsection{Description du traducteur C3A}
 Sachant que le code a été vérifié par les analyseurs, nous parcourons récursivement l'arbre construit par Bison. Nous traduisons donc ligne par ligne en incrémentant un compteur global pour les étiquettes. Comme nous n'avons pas d'instructions pour les déclarations des variables locales, nous renommons celles qui ont le même noms que les globales, dans les instructions \textit{param} ainsi que dans le corps des fonctions. Nous rajoutons la traduction des fonctions à la fin du fichier traduit, chaque fonction commence à l'étiquette portant son nom.
+
+\subsection{Description de l'interpreteur C3A}
+La fonction \textit{interpreteurC3A} prend en paramètre une bi-liste de textit{QUAD} correspondant à l'intégralité du code C3A. Chaque \textit{QUAD} est lu l'un après l'autre et les différentes interprétations du code sont effectuées en fonction de la valeur du paramètre d'opération. Pour cela la fonction possède un \textit{while} qui ne se termine que lorsque l'on arrive au dernier \textit{QUAD} et les différentes opérations sont gérées dans un \textit(switch). Les variables déclarées et modifiées au fur et à mesure sont stockées dans un \textit{ENV}. En fin de fonction on écrit l'intégralité de l'environnement.  
+
 \subsection{Problèmes rencontrés et solutions}
 \subsubsection{Pour l'analyseur lexical}
 Le premier problème était de récupérer le nom des variables, donc pour ça nous avons d'abord essayé en rajoutant simplement, dans l'union yylval, un char* nom, mais n'étant pas la bonne solution puisqu'en construisant l'arbre avec bison, yylval.nom n'avait pas la bonne valeur au bon moment. Donc pour solutionner ce problème nous avons rendu V terminal, pour ça nous avons rajouté yylval.noeud; et c'est dans le flex, au moment de lire une variable, que nous créons un nouveau noeud et que nous mettons dans yylval.noeud.
@@ -168,7 +172,9 @@ Le second problème était, que nous ne savions pas comment traduire les instruc
 
 NomTableau = new array of integer [Taille] <=> ETIQ:   :NomTableau :NomTableau :Taille
 
-
+\subsubsection{Pour l'interpretateur C3A}
+Le premier problème était au sujet de l'implémentation des opérations pour les tableaux, nous avons décidé de stocker les différents tableaux créés (lors d'un AFIND) dans un environnement de tableau implémenté dans le fichier \textit{tableau.c} si ARG1 et ARG2 ont le même nom. Si on désire retrouver la valeur contenue dans un tableau, il faut donc chercher le tableau dans la liste.
+Le second problème rencontré concerne l'implémentation des opérations correspondant à l'interprétation des fonctions (CALL, RET et PARAM). Pour l'instruction CALL, le nombre de paramètre d'entrée de la fonction est stocké mais n'est jamais utilisé car les variables locales sont renommées lors de la traduction. Le RET consiste seulement à retourner à l'instruction située après le CALL. L'instruction PARAM ne fait que stocker les paramètres dans l'environnement.
 
 \section{Phase de test}
 Nous testions instruction par instruction, nous attendions d'être sûr qu'une instruction marche avant de passer à une autre. Puis nous assemblions les instructions dans un seul fichier. 
