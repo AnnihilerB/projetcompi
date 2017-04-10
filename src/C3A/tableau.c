@@ -1,7 +1,7 @@
 #include "tableau.h"
 #include <string.h>
 #include <stdlib.h>
-
+#include <stdio.h>
 
 void affichertab(TAB t, int taille){
     CASE c = t->debut;
@@ -32,7 +32,6 @@ TAB creer_tableau(char *nom, int n){
         c->SUIV = creer_caseTableau(i);
         c = c->SUIV;
     }
-    affichertab(tab, n);
     return tab;
 }
 
@@ -40,7 +39,6 @@ TAB rechercher_tableau(char *nom, BILTAB bil){
     TAB t = bil.debut;
     while (t != NULL){
         if (strcmp(t->nom, nom) == 0){
-            printf("tableau trouvé\n");
             return t;
         }
         t = t->SUIV;
