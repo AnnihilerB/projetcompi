@@ -12,11 +12,9 @@ ENV varEnv; //Env stockant la variable courante.
 LFON fonctionCourante; //Fonction à éxecuter si appel de fonctions.
 BILENV paramFonctions; //Paramètre d'un appel de fonctions interprétés.
 
-int valRetour = 0; //Var est la variable de retour d'une fonction'
 int dansFonction = 0; //Indicateur dans fonction
 
 ENV cpy; //Environnement de copie lors d'un AF
-ENV retFonction;
 
 
 TAB t; // Tableau
@@ -108,8 +106,6 @@ int interp_rec(NOE corps){
           cpy = Envalloc();
           cpy->ID = Idalloc();
           strcpy(cpy->ID, corps->ETIQ);
-          valRetour = 1;
-          printf("VAR RETOUR\n");
           return 0;
         }
       }
@@ -148,20 +144,10 @@ int interp_rec(NOE corps){
       }
       else if (corps->FG->codop == V){ //Membre droit variable/valeur/tableau
         //Variable classique
-        printf("VALRETOUR : %d\n", valRetour);
-        if (valRetour){
-          printf("VAR RETOUR2222\n");
-          affect(cpy, cpy->ID, interp_rec(corps->FD));
-          valRetour = 0;
-          break;
-        }
-        else {
           interp_rec(corps->FG); //Interp pour stocker dans varEnv l'ENV de la variable.
           cpy = Envalloc();
           cpy = varEnv; // Garde une trace de la variable pour éviter réécriture par interp FD.
           affect(cpy, cpy->ID, interp_rec(corps->FD));
-          break;
-        }
         break;
       }
     case Pl: case Mo: case Mu: case And: case Or: case Lt: case Eq:
