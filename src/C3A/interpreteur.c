@@ -2,8 +2,10 @@
 #include "analyseur.h"
 #include "ppascal.tab.h"
 #include "tableau.h"
-#include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 
 EnvGlobal envG; // Environnement du programme -> Var globale, listes des fonctions, coprs du programme principal.
 ENV varEnv; //Env stockant la variable courante.
@@ -19,6 +21,8 @@ TAB t; // Tableau
 BILTAB biltab;
 TAB TEST;
 
+int evaluation(int op, int a, int b);
+int interp_rec(NOE corps);
 
 
 void interpreteur(EnvGlobal env){

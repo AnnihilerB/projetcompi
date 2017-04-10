@@ -3,6 +3,8 @@
 #include "bilquad.h"
 #include "ppascal.tab.h"
 
+extern execute_bison(); //dans ppascal.y
+
 int main()
 {
     execute_bison();
