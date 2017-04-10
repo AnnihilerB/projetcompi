@@ -3,6 +3,8 @@
     #include <stdlib.h>
     #include "analyseur.h"
     #include "util.h"
+    #include "envGlobal.h"
+    
     int yyerror(char* s);
     int yylex();
     BILENV ListeVariablesGLOBALES;
@@ -41,14 +43,12 @@
 %left Pl Mo Mu And Or Not Lt Eq
 
 %%
-MP: L_vart LD C  {  printf("t_int : %d t_boo : %d et t_ar: %d et Nfon: %d\n",T_int, T_boo, T_ar, NFon);
+MP: L_vart LD C  {  
                     $$=creer_environnementGlobal();
                     $$.variablesGlobales = $1;
                     $$.listeDesFonctionsOuProcedure = $2;
                     $$.corpsGlobale = $3;
-                    interpreteur($$);
-                    traduire_ppascal_vers_C3A($$);
-                    //ecrire_prog($$->variablesGlobales, $$->listeDesFonctionsOuProcedure, $$->corpsGlobale);
+                    envGlobal = $$;
                 }
     ;
 E: E Pl E   {
@@ -489,7 +489,7 @@ int yywrap()
 {
     return -1;
 }
-int main(int argn, char** argv)
+int execute_bison()
 {
     fonctionActuel = NULL;
     ListeVariablesLOCALES = bilenv_vide();
