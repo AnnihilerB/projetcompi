@@ -46,7 +46,7 @@ MP: L_vart LD C  {  printf("t_int : %d t_boo : %d et t_ar: %d et Nfon: %d\n",T_i
                     $$.variablesGlobales = $1;
                     $$.listeDesFonctionsOuProcedure = $2;
                     $$.corpsGlobale = $3;
-                    //interpreteur($$);
+                    interpreteur($$);
                     traduire_ppascal_vers_C3A($$);
                     //ecrire_prog($$->variablesGlobales, $$->listeDesFonctionsOuProcedure, $$->corpsGlobale);
                 }
