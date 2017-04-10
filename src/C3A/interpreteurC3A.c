@@ -21,7 +21,7 @@ BILTAB bilisttab;
 TAB tableau;
 
 void interpreteurC3A(BILQUAD bilist){
-	printf("DEBUT\n");
+	
 	presentquad = bilist.debut;
 
 	ENV environnement = Envalloc();
@@ -57,7 +57,7 @@ void interpreteurC3A(BILQUAD bilist){
 		}
 	
 		if(operator==PL||operator==MO||operator==MU){
-			printf("lapin PL MO MU\n");
+		
 			if(isdigit(atoi(ARG1)))
 				val1 = atoi(ARG1);
 			else
@@ -77,24 +77,24 @@ void interpreteurC3A(BILQUAD bilist){
 		}
 
 		else if(operator == AF){
-			printf("lapin AF\n");
+			
 			if(rech(ARG1, environnement)==NULL)
 				initenv(&environnement, ARG1);
 			affect(environnement, ARG1, valch(environnement, ARG2));
 		}
 
 		else if(operator == AFC){
-			printf("lapin AFC\n");
+			
 			affect(environnement, RES, atoi(ARG1));
 		}
 
 		else if(operator == ST){
-			printf("lapin ST\n");
+			
 			break;
 		}
 
 		else if(operator == SK){
-			printf("lapin SK\n");
+			
 			if(RES!=NULL){
 				if(rech(RES, environnement)==NULL){
 					initenv(&environnement, RES);
@@ -104,7 +104,7 @@ void interpreteurC3A(BILQUAD bilist){
 		}
 
 		else if(operator==AND || operator==OR || operator==LT){
-			printf("lapin AND OR LT\n");
+			
 			if(isdigit(atoi(ARG1)))
 				val1 = atoi(ARG1);
 			else
@@ -116,7 +116,7 @@ void interpreteurC3A(BILQUAD bilist){
 				val2 = valch(environnement, ARG2);
 
 			if(operator==AND){
-				printf("lapin AND\n");
+	
 				if(val1 && val2)
 					result = 1;
 				else
@@ -124,7 +124,7 @@ void interpreteurC3A(BILQUAD bilist){
 			}
 
 			if(operator==OR){
-				printf("lapin OR\n");
+				
 				if(val1||val2)
 					result = 1;
 				else
@@ -132,7 +132,7 @@ void interpreteurC3A(BILQUAD bilist){
 			}
 
 			if(operator==LT){
-				printf("lapin LT\n");
+				
 				if(val1 < val2)
 					result = 1;
 				else
@@ -143,8 +143,6 @@ void interpreteurC3A(BILQUAD bilist){
 		}
 
 		else if(operator==NOT){
-
-			printf("lapin NOT\n");
 
 			if(isdigit(atoi(ARG1)))
 				val1 = atoi(ARG1);
@@ -157,20 +155,18 @@ void interpreteurC3A(BILQUAD bilist){
 			affect(environnement, RES, result);
 		}							
 
-		else if(operator==JP){
-			printf("lapin JP\n");
+		else if(operator==JP)
 			presentquad = rechbq(RES, bilist);
-		}
 
 		else if(operator==JZ){
-			printf("lapin JZ\n");
+	
 			if(valch(environnement, ARG1)==0){
 				presentquad = rechbq(RES, bilist);
 			}
 		}
 
 		else if(operator==IND){ //on ajoute à la variable destination la valeur de ARG1[ARG2]
-			printf("lapin IND\n");
+			
 			if(isdigit(atoi(ARG2)))
 				val2 = atoi(ARG2);
 			else
@@ -182,7 +178,6 @@ void interpreteurC3A(BILQUAD bilist){
 		}
 
 		else if(operator==AFIND){
-			printf("lapin AFIND\n");
 
 			if(strcmp(ARG1,ARG2)==0){ //Si le tableau n'existe pas.
 				if(isdigit(atoi(RES)))
@@ -207,7 +202,7 @@ void interpreteurC3A(BILQUAD bilist){
 		}
 
 		else if(operator==PARAM){
-			printf("lapin PARAM\n");
+	
 			if(isdigit(atoi(ARG2)))
 				val2 = atoi(ARG2);
 			else
@@ -220,23 +215,17 @@ void interpreteurC3A(BILQUAD bilist){
 		}
 
 		else if(operator==CALL){
-			printf("lapin CALL\n");
+
 			callquad=presentquad;
 			nparam = atoi(ARG2);
 			presentquad=rechbq(ARG1, bilist);
-
-
 		}
 
-		else if(operator==RET){
-			printf("lapin RET\n");
+		else if(operator==RET)
 			presentquad=callquad->SUIV;
 
-		}
-
-		if(operator!=JZ && operator!=JP && operator!=CALL && operator!=RET){
+		if(operator!=JZ && operator!=JP && operator!=CALL && operator!=RET)
 			presentquad=presentquad->SUIV;
-		}
 
 	}
 	ecrire_env(environnement);
