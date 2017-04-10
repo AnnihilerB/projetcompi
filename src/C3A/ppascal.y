@@ -148,7 +148,7 @@ E: E Pl E   {
                     fprintf(stderr, "not possible seulement avec un boolean\n");
                     return 1;
                 }
-                $$ = Nalloc(); $$->codop = Not; $$->FD = $2;
+                $$ = Nalloc(); $$->codop = Not;$$->FD = $2;
             }
     | '(' E ')' {
                     ENV env = existe($2, ListeFonctionsGLOBALES, ListeVariablesGLOBALES, ListeVariablesLOCALES);
@@ -348,7 +348,7 @@ L_vart: %empty {$$ = bilenv_vide();}
                     if (estDansFonction == false)
                         ListeVariablesGLOBALES = $$;
                     else
-                        concat(ListeVariablesLOCALES, copier_bilenv($$));
+                        ListeVariablesLOCALES = concat(ListeVariablesLOCALES, copier_bilenv($$));
                }
     ;
 L_vartnn: Var Argt {$$ = creer_bilenv($2);}
