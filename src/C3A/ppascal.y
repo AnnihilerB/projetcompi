@@ -1,6 +1,7 @@
 %{
     #include <stdio.h>
     #include <stdlib.h>
+    #include <string.h>
     #include "analyseur.h"
     #include "util.h"
     #include "envGlobal.h"
@@ -18,6 +19,7 @@
     int verification_type_et_existence(char* nom1, char* nom2,ENV env1, ENV env2);
     int verification_appel_fonction (LFON fonction, NOE args);
     extern  void setEnv(EnvGlobal env);
+    extern void afficherLigne();
     int numeroLigne = 0;
 %}
 
