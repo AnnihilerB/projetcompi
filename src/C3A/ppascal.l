@@ -1,4 +1,12 @@
-
+/*
+CHERIFI Ali FONTENAY Clément GAILLARD Valentin
+analyseur lexical : ppascal.l
+analyseur syntaxique : ppascal.y  fonction execute_bison()
+analyseur sémantique : ppascal.y, analyseur.c, analyseur.h 
+interpreteur ppascal : interpreteur.c fonction interpreteur(EnvGlobal env)
+traducteur ppascal vers C3A : traducteurC3A.c traduire_ppascal_vers_C3A(EnvGlobal programme)
+interpreteur C3A: interpreteurC3A.c interpreteurC3A(BILQUAD bilist)
+*/
 %{
     #include <stdio.h>
     #include <stdlib.h>
