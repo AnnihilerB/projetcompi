@@ -132,7 +132,13 @@ Quand on a un noeud \textit{NOE} qui est une variable on peut donc savoir rapide
 
 
 \subsubsection{Pour le traducteur C3A}
-Le plus gros problème était de traduire, pour que l'intepréteur n'est aucun doute sur la portée des variables; donc à chaque appel d'une fonction, nous renommons en cas de besoin l'\textit{Args
+Le plus gros problème était de traduire, pour que l'intepréteur n'est aucun doute sur la portée des variables; donc à chaque appel d'une fonction, nous renommons en cas de besoin (quand les paramètres de la fonction ont le même nom qu'une variable gloabale) les \textit{Args 1} des intructions \textit{Param}. Puis dans une fonctoin nous faisons le même système de renommage en cas de besoin.
+
+Le second problème était, que nous ne savions pas comment traduire les instructions \textit{New array of}, mais nous avons fini par choisir de traduire l'instruction de cette manière:
+
+NomTableau = new array of integer [Taille] <=> ETIQ:   :NomTableau :NomTableau :Taille
+
+
 
 \section{Phase de test}
 
