@@ -13,7 +13,7 @@ char* CT(int c);
 char* VA(int c);
 int charToInt (char* n);
 char* intToChar(int c);
-void traduire_ppascal_vers_C3A(EnvGlobal programme);
+BILQUAD traduire_ppascal_vers_C3A(EnvGlobal programme);
 BILQUAD traduire_toutes_les_fonctions(BILFON fonctions);
 BILQUAD traduire_fonction(LFON fonction);
 BILQUAD traduire_corps(NOE corps, char* etiq);
