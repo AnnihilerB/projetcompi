@@ -1,0 +1,41 @@
+Chers Ã©tudiants de L3 d'Informatique.  IL faut vous INSCRIRE en
+soutenance de projet de compilation.  Pour cela, chaque responsable
+de groupe de projet devra envoyer, dans un mÃªme courrier
+Ã©lectronique:
+- l'archive demandÃ©e dans le sujet de projet
+- ET les disponibilitÃ©s et indisponibilitÃ©s de soutenance du groupe entier
+(<= 4 personnes), Ã  l'intÃ©rieur du planning ci-dessous.
+
+Les contraintes sont les suivantes:
+- tous les membres du groupe de projet doivent participer Ã  la soutenance
+- il est prÃ©fÃ©rable que la soutenance se fasse devant l'enseignant
+qui recevra l'archive (donc le rapport)
+N.B. cet enseignant est l'enseignant de TD du responsable du groupe
+
+RAPPEL: la date-limite d'envoi du projet est le Lundi 10/04/17 Ã  23h 59.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+SOUTENANCES des projets de Compilation.
+
+Mercredi 12/04/17:  H.Derycke/G.SÃ©nizergues
+14h-15h:  G1:       G2:       G3:
+15h-16h:  G1:       G2:       G3:
+16h-17h:  G1:       G2:       G3:
+17h-18h:  G1:       G2:       G3:
+18h-19h:  G1:       G2:       G3:
+
+Jeudi 13/04/17:    L.ClÃ©ment/G.SÃ©nizergues
+13h-14h:  G1:       G2:       G3:
+14h-15h:  G1:       G2:       G3:
+15h-15h 30: G1
+
+
+Vendredi 14/04/17:  L.ClÃ©ment/G.SÃ©nizergues
+8h-9h:    G1:       G2:       G3:
+9h-10h:   G1:       G2:       G3:
+10h-11h:  G1:       G2:       G3:
+11h-12h:  G1:       G2:       G3:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
